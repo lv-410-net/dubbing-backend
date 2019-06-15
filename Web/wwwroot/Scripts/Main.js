@@ -6,6 +6,10 @@ let connection;
 
 let currentAudioLink;
 
+let performanceID;
+
+let langID;
+
 let languageId;
 
 const performancesAPI = 'api/performance';
@@ -50,6 +54,8 @@ function init() {
 function goToLanguagesPart(performanceId) {
     'use strict';
     
+    performanceID = performanceId;
+    
     languagesAPI = 'api/performance/' + performanceId +'/languages/';
     
     getData(languagesAPI).then(response => {
@@ -74,6 +80,8 @@ function goToLanguagesPart(performanceId) {
 function goToStreamingPart(langId) {
     'use strict';
 
+    langID = langId
+    
     languageId = '_' + langId;
     
     languagePart.style.display = 'none';
@@ -138,6 +146,54 @@ function startStream() {
     currentAudioLink = 'audio/Waiting.mp3';
 
     saveAndPlayAudio(currentAudioLink, true);
+    
+    preLoadAudio();
+}
+
+function getAudios() {
+    'use strict';
+    console.log('api/Audio/' + performanceID + langID);
+    return fetch('api/Audio/' + performanceID + langID)
+        .then(response => {
+            console.log("dsfsdf");
+            console.log(response);
+            if (!response.ok) {
+                throw new Error('HTTP error, status = ' + response.status);
+            }
+            return response.json();
+        });
+}
+
+function savePreLoadAudio(URL) {
+    //'use strict';
+
+    console.log(URL);
+
+    return fetch(URL)
+        .then(response => response.arrayBuffer())
+        .then(arrayBuffer =>
+            context.decodeAudioData(
+                arrayBuffer,
+                audioBuffer => play(audioBuffer, audioLoop, time),
+                error => console.error(error)
+            )
+        )
+}
+
+function preLoadAudio(){
+    'use strict';
+    
+    console.log(performanceID);
+    console.log(langID);
+    getAudios().then(response => {
+        response.forEach(audio => {
+            savePreUploadAudio(audio);
+        }
+                );
+            })
+        .catch(error =>
+            console.log(error)
+        );
 }
 
 function endStream() {
