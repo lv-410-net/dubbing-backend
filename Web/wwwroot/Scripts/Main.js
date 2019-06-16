@@ -152,16 +152,15 @@ function startStream() {
 
 function getAudios() {
     'use strict';
-    console.log('api/Audio/' + performanceID + langID);
-    return fetch('api/Audio/' + performanceID + langID)
+    console.log('http://192.168.0.100:5000/api/Audio/preload/' + performanceID +'/' + langID);
+    return fetch('api/Audio/preload/' + performanceID +'/' + langID)
         .then(response => {
-            console.log("dsfsdf");
-            console.log(response);
-            if (!response.ok) {
-                throw new Error('HTTP error, status = ' + response.status);
-            }
-            return response.json();
-        });
+    if (!response.ok) {
+        throw new Error('HTTP error, status = ' + response.status);
+    }
+    console.log(response.json());
+    return response.json();
+});
 }
 
 function savePreLoadAudio(URL) {
@@ -195,6 +194,7 @@ function preLoadAudio(){
             console.log(error)
         );
 }
+
 
 function endStream() {
     'use strict';

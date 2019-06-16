@@ -13,8 +13,6 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.Administration.Core.Services
 {
     internal class AudioService : GenericService<Audio>, IAudioService
     {
-        private readonly List<Audio> _listAudios = null;
-
         private readonly IFileSystemRepository _fileSystemRepository;
 
         private readonly IRepository<Speech> _speechRepository;
@@ -27,7 +25,6 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.Administration.Core.Services
             IFileSystemRepository fileSystemRepository)
             : base(repository)
         {
-            _listAudios = new List<Audio>();
             _speechRepository = speechRepository;
             _fileSystemRepository = fileSystemRepository;
         }

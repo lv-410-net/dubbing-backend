@@ -52,7 +52,8 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.Web.ApiControllers
         /// <response code="200">Is returned when audios does exist.</response>
         /// <response code="400">Is returned when language with such Id doesn't exist.</response>
         /// <response code="404">Is returned when audios doesn't exist.</response>
-        [HttpGet("{performanceID}")]
+        [HttpGet]
+        [Route("preload/{performanceID:int}/{langID:int}")]
         public async Task<ActionResult<List<AudioDTO>>> GetAudiosByLanguageIdPerformanceID(int performanceID, int langID)
         {
             var listOfAudioDTOs = await _administrationMicroservice.GetAudiosByLanguageIDPerformanceIdAsync(langID, performanceID);
