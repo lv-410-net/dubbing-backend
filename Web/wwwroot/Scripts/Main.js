@@ -158,26 +158,10 @@ function getAudios() {
     if (!response.ok) {
         throw new Error('HTTP error, status = ' + response.status);
     }
-    console.log(response.json());
     return response.json();
-});
+        });
 }
 
-function savePreLoadAudio(URL) {
-    //'use strict';
-
-    console.log(URL);
-
-    return fetch(URL)
-        .then(response => response.arrayBuffer())
-        .then(arrayBuffer =>
-            context.decodeAudioData(
-                arrayBuffer,
-                audioBuffer => play(audioBuffer, audioLoop, time),
-                error => console.error(error)
-            )
-        )
-}
 
 function preLoadAudio(){
     'use strict';
@@ -185,14 +169,27 @@ function preLoadAudio(){
     console.log(performanceID);
     console.log(langID);
     getAudios().then(response => {
-        response.forEach(audio => {
-            savePreUploadAudio(audio);
-        }
-                );
+        response.forEach(audio => savePreLoadAudio(audio));
             })
         .catch(error =>
             console.log(error)
         );
+}
+
+function savePreLoadAudio(URL) {
+    //'use strict';
+    console.log("from preload");
+    console.log(URL);
+
+    return fetch(URL)
+        .then(response => response.arrayBuffer())
+.then(arrayBuffer =>
+    context.decodeAudioData(
+        arrayBuffer,
+        audioBuffer => play(audioBuffer, audioLoop, time),
+        error => console.error(error)
+)
+)
 }
 
 
