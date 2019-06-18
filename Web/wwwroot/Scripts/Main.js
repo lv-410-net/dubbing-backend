@@ -18,6 +18,8 @@ let languagesAPI;
 
 let dict = [];
 
+let shouldReload = false;
+
 const connectionButton = document.getElementById('connecting-button');
 
 const performancePart = document.getElementById('performance-selection-part');
@@ -122,7 +124,7 @@ function handleMessage(link, time) {
 
     switch (link) {
         case 'Start':
-            startStream();
+            startStream(shouldReload);
             break;
         case 'End':
             endStream();
@@ -142,8 +144,14 @@ function handleMessage(link, time) {
     }
 }
 
-function startStream() {
+function startStream(shouldReload) {
     'use strict';
+    if(shouldReload)
+    {
+        console.log("from if");
+        location.reload(true);
+    }
+    console.log("from else");
 
     currentAudioLink = 'audio/Waiting.mp3';
 
@@ -209,6 +217,8 @@ function endStream() {
     currentSource.stop();
 
     displayLinks();
+    shouldReload = true;
+    console.log(shouldReload);
 }
 
 function resumeStream() {
