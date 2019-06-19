@@ -8,7 +8,7 @@ let currentAudioLink;
 
 let languageId;
 
-let timeDiff = 0;
+let timeDiff;
 
 const performancesAPI = 'api/performance';
 
@@ -107,7 +107,7 @@ function changeButton() {
     connectionButton.textContent = 'You are connected to stream';
 }
 
-function handleMessage(link, time, offset) {
+function handleMessage(link, time, startedAt) {
     'use strict';
 
     console.log('We get: ' + link);
@@ -125,11 +125,11 @@ function handleMessage(link, time, offset) {
         case 'Pause':
             pauseStream();
             break;
-        //case currentAudioLink:
-        //    restartCurrentAudio();
-        //    break;
+        case currentAudioLink:
+           restartCurrentAudio();
+           break;
         default:
-            playNewAudio(link, time, offset);
+            playNewAudio(link, time, startedAt);
             break;
     }
 }
@@ -137,14 +137,9 @@ function handleMessage(link, time, offset) {
 function startStream(time) {
     'use strict';
 
-    const timeNow = new Date().getTime();
-    timeDiff = time - timeNow;
-
     currentAudioLink = 'audio/Waiting.mp3';
 
-    alert(`Initial: ${time} \n Got: ${timeNow}`);
-
-    saveAndPlayAudio(currentAudioLink, true, timeNow);
+    saveAndPlayAudio(currentAudioLink, true, time);
 }
 
 function endStream() {
@@ -183,28 +178,30 @@ function restartCurrentAudio(time, offset) {
     saveAndPlayAudio(currentAudioLink, time, offset);
 }
 
-function playNewAudio(link, time, offset) {
+function playNewAudio(link, time, startedAt) {
     link = 'audio/' + link + languageId + '.mp3';
 
-    if (currentAudioLink !== undefined) {
+    if (currentSource !== undefined) {
         currentSource.stop();
     }
     currentAudioLink = link;
 
-    saveAndPlayAudio(currentAudioLink, false, time, offset);
+    saveAndPlayAudio(currentAudioLink, false, time, startedAt);
 }
 
-function saveAndPlayAudio(URL, audioLoop, time, offset = 0) {
-    //'use strict';
+function saveAndPlayAudio(URL, audioLoop, time, startedAt) {
+    'use strict';
 
     console.log(URL);
+
+    timeDiff = time - (new Date()).getTime();
 
     return fetch(URL)
         .then(response => response.arrayBuffer())
         .then(arrayBuffer =>
             context.decodeAudioData(
                 arrayBuffer,
-                audioBuffer => play(audioBuffer, audioLoop, time, offset),
+                audioBuffer => play(audioBuffer, audioLoop, time, startedAt),
                 error => console.error(error)
             )
         )
@@ -217,8 +214,8 @@ function connectToHub() {
         .withUrl("/StreamHub")
         .build();
 
-    connection.on("ReceiveMessage", function (message, time, offset) {
-        handleMessage(message, time, offset);
+    connection.on("ReceiveMessage", function (message, time, startedAt) {
+        handleMessage(message, time, startedAt);
     });
 
     connection.start().catch(function (err) {
@@ -252,8 +249,10 @@ function createAndPlaySilent() {
     pauseSource.start();
 }
 
-function play(currentBuffer, loopCondition, time, offset) {
+function play(currentBuffer, loopCondition, time, startedAt) {
     'use strict';
+
+    startedAt = startedAt || time;
 
     currentSource = context.createBufferSource();
 
@@ -263,12 +262,11 @@ function play(currentBuffer, loopCondition, time, offset) {
 
     currentSource.loop = loopCondition;
 
-    let offsetDelta = (Date.now() - time + timeDiff) / 1000;
-    //alert(offset);
-    if (offsetDelta < 0 || offsetDelta > 60)
-        offsetDelta = 0;
+    let offset = ((new Date()).getTime() - startedAt + timeDiff) / 1000;
+    if (offset < 0)
+        offset = 0;
 
-    currentSource.start(0, offset + offsetDelta);
+    currentSource.start(0, offset);
 }
 
 function getData(api) {

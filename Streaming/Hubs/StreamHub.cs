@@ -67,11 +67,11 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.Streaming.Core.Hubs
             await Clients.Others.SendAsync("ReceiveMessage", message, time);
         }
 
-        public async Task SendMessageAndTime(string message, long time, int offset, string connectionId)
+        public async Task SendMessageAndTime(string message, long time, long startTime, string connectionId)
         {
             _needWait = false;
             _started = true;
-            await Clients.Client(connectionId).SendAsync("ReceiveMessage", message, time, offset);
+            await Clients.Client(connectionId).SendAsync("ReceiveMessage", message, time, startTime);
         }
     }
 }
