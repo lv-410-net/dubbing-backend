@@ -180,11 +180,19 @@ function playNewAudio(link, time) {
     link = 'audio/' + link + languageId + '.mp3';
 
     if (currentAudioLink !== undefined) {
-        currentSource.stop();
+        if(currentSource == undefined)    
+            {
+                setTimeout(function(){  
+                    currentSource.stop();
+                    currentAudioLink = link;        
+                    saveAndPlayAudio(currentAudioLink, false, time);}, 5500);           
+            }
+            else{
+                currentSource.stop();
+                currentAudioLink = link;        
+                saveAndPlayAudio(currentAudioLink, false, time);
+             }
     }
-    currentAudioLink = link;
-
-    saveAndPlayAudio(currentAudioLink, false, time);
 }
 
 function saveAndPlayAudio(URL, audioLoop, time = 0) {
