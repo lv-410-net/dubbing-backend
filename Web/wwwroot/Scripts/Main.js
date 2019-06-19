@@ -8,6 +8,12 @@ let currentAudioLink;
 
 let languageId;
 
+let pauseTime = 0;
+
+let tempBuffer;
+
+let isLoaded;
+
 const performancesAPI = 'api/performance';
 
 let languagesAPI;
@@ -121,6 +127,8 @@ function handleMessage(link, time) {
             resumeStream();
             break;
         case 'Pause':
+            pauseTime = time;
+            console.log(time);
             pauseStream();
             break;
         case currentAudioLink:
@@ -135,9 +143,13 @@ function handleMessage(link, time) {
 function startStream() {
     'use strict';
 
+    isLoaded = false;
+    console.log(currentAudioLink);
     currentAudioLink = 'audio/Waiting.mp3';
 
     saveAndPlayAudio(currentAudioLink, true);
+
+    isLoaded = true;
 }
 
 function endStream() {
@@ -151,12 +163,13 @@ function endStream() {
 function resumeStream() {
     'use strict';
 
-    saveAndPlayAudio(currentAudioLink);
+    play(tempBuffer, false, pauseTime);
 }
 
 function pauseStream() {
     'use strict';
 
+    tempBuffer = currentSource.buffer;
     currentSource.stop();
 }
 
@@ -177,9 +190,11 @@ function restartCurrentAudio() {
 }
 
 function playNewAudio(link, time) {
+    'use strict';
+
     link = 'audio/' + link + languageId + '.mp3';
 
-    if (currentAudioLink !== undefined) {
+    if (currentSource !== undefined) {
         currentSource.stop();
     }
     currentAudioLink = link;
@@ -270,7 +285,3 @@ function getData(api) {
             return response.json();
         });
 }
-
-
-
-

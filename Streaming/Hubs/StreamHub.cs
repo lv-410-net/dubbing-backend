@@ -67,7 +67,14 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.Streaming.Core.Hubs
         {
             _adminId = Context.ConnectionId;
             _started = true;
-            await Clients.Client(connectionId).SendAsync("ReceiveMessage", message, time);
+            if (connectionId != null)
+            {
+                await Clients.Client(connectionId).SendAsync("ReceiveMessage", message, time);
+            }
+            else
+            {
+                await Clients.Others.SendAsync("ReceiveMessage", message, time);
+            }
         }
     }
 }
