@@ -12,11 +12,15 @@ let langID;
 
 let languageId;
 
+let timeDiff;
+
 const performancesAPI = 'api/performance';
 
 let languagesAPI;
 
 let dict = [];
+
+let shouldReload = false;
 
 const connectionButton = document.getElementById('connecting-button');
 
@@ -115,14 +119,14 @@ function changeButton() {
     connectionButton.textContent = 'You are connected to stream';
 }
 
-function handleMessage(link, time) {
+function handleMessage(link, time, startedAt) {
     'use strict';
 
     console.log('We get: ' + link);
 
     switch (link) {
         case 'Start':
-            startStream();
+            startStream(time, shouldReload);
             break;
         case 'End':
             endStream();
@@ -134,20 +138,26 @@ function handleMessage(link, time) {
             pauseStream();
             break;
         case currentAudioLink:
-            restartCurrentAudio();
-            break;
+           restartCurrentAudio();
+           break;
         default:
-            playNewAudio(link, time);
+            playNewAudio(link, time, startedAt);
             break;
     }
 }
 
-function startStream() {
+function startStream(time, shouldReload) {
     'use strict';
+    if(shouldReload)
+    {
+        console.log("from if");
+        location.reload(true);
+    }
+    console.log("from else");
 
     currentAudioLink = 'audio/Waiting.mp3';
 
-    saveAndPlayAudio(currentAudioLink, true);
+    saveAndPlayAudio(currentAudioLink, true, time);
 
     preLoadAudio();
 }
@@ -209,6 +219,8 @@ function endStream() {
     currentSource.stop();
 
     displayLinks();
+    shouldReload = true;
+    console.log(shouldReload);
 }
 
 function resumeStream() {
@@ -231,15 +243,15 @@ function displayLinks() {
     linkPart.style.display = 'flex';
 }
 
-function restartCurrentAudio() {
+function restartCurrentAudio(time, offset) {
     'use strict';
 
     currentSource.stop();
 
-    saveAndPlayAudio(currentAudioLink);
+    saveAndPlayAudio(currentAudioLink, time, offset);
 }
 
-function playNewAudio(link, time) {
+function playNewAudio(link, time, startedAt) {
     console.log(link);
     link = 'audio/' + link + languageId + '.mp3';
 
@@ -248,26 +260,26 @@ function playNewAudio(link, time) {
             setTimeout(function () {
                 currentSource.stop();
                 currentAudioLink = link;
-                saveAndPlayAudio(currentAudioLink, false, time);
+                saveAndPlayAudio(currentAudioLink, false, time, startedAt);
             }, 5500);
         }
         else {
             currentSource.stop();
             currentAudioLink = link;
-            saveAndPlayAudio(currentAudioLink, false, time);
+            saveAndPlayAudio(currentAudioLink, false, time, startedAt);
         }
     }
 }
 
-function saveAndPlayAudio(URL, audioLoop, time = 0) {
-    //'use strict';
-
+function saveAndPlayAudio(URL, audioLoop, time, startedAt) {
+    'use strict';
+    timeDiff = time - (new Date()).getTime();
     console.log("URL " + URL);
     console.log(dict[0]);
     if (dict.some(e => e.key === URL)) {
         console.log("we are in");
         console.log(dict.find((e) => e.key === URL).value);
-        return play(dict.find((e) => e.key === URL).value, audioLoop, time);
+        return play(dict.find((e) => e.key === URL).value, audioLoop, time, startedAt);
     } else {
         console.log("not in");
         return fetch(URL)
@@ -275,13 +287,11 @@ function saveAndPlayAudio(URL, audioLoop, time = 0) {
             .then(arrayBuffer =>
                 context.decodeAudioData(
                     arrayBuffer,
-                    audioBuffer => play(audioBuffer, audioLoop, time),
+                    audioBuffer => play(audioBuffer, audioLoop, time, startedAt),
                     error => console.error(error)
                 )
             )
     }
-
-
 }
 
 function connectToHub() {
@@ -291,8 +301,8 @@ function connectToHub() {
         .withUrl("/StreamHub")
         .build();
 
-    connection.on("ReceiveMessage", function (message, time) {
-        handleMessage(message, time);
+    connection.on("ReceiveMessage", function (message, time, startedAt) {
+        handleMessage(message, time, startedAt);
     });
 
     connection.start().catch(function (err) {
@@ -326,8 +336,10 @@ function createAndPlaySilent() {
     pauseSource.start();
 }
 
-function play(currentBuffer, loopCondition, time) {
+function play(currentBuffer, loopCondition, time, startedAt) {
     'use strict';
+
+    startedAt = startedAt || time;
 
     currentSource = context.createBufferSource();
 
@@ -337,7 +349,11 @@ function play(currentBuffer, loopCondition, time) {
 
     currentSource.loop = loopCondition;
 
-    currentSource.start(0, time);
+    let offset = ((new Date()).getTime() - startedAt + timeDiff) / 1000;
+    if (offset < 0)
+        offset = 0;
+
+    currentSource.start(0, offset);
 }
 
 function getData(api) {

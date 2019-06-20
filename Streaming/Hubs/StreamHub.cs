@@ -23,7 +23,11 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.Streaming.Core.Hubs
             await Clients.User(_adminId).SendAsync("updateCount", numberOfConnections);
 
             if (_needWait)
-                await Clients.Caller.SendAsync("ReceiveMessage", "Start");
+            {
+                var time = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                await Clients.Caller.SendAsync("ReceiveMessage", "Start", time);
+            }
+
             if (_started)
             {
                 await Clients.User(_adminId).SendAsync("Late Connect", Context.ConnectionId);
@@ -41,7 +45,7 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.Streaming.Core.Hubs
             await Clients.User(_adminId).SendAsync("updateCount", numberOfConnections);
         }
 
-        public async Task SendMessage(string message)
+        public async Task SendMessage(string message, long time)
         {
             switch (message)
             {
@@ -60,14 +64,14 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.Streaming.Core.Hubs
                     break;
             }
 
-            await Clients.Others.SendAsync("ReceiveMessage", message);
+            await Clients.Others.SendAsync("ReceiveMessage", message, time);
         }
 
-        public async Task SendMessageAndTime(string message, int time, string connectionId)
+        public async Task SendMessageAndTime(string message, long time, long startTime, string connectionId)
         {
-            _adminId = Context.ConnectionId;
+            _needWait = false;
             _started = true;
-            await Clients.Client(connectionId).SendAsync("ReceiveMessage", message, time);
+            await Clients.Client(connectionId).SendAsync("ReceiveMessage", message, time, startTime);
         }
     }
 }
