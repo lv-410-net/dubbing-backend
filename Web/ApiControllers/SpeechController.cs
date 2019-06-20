@@ -70,7 +70,7 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.Web.ApiControllers
         public async Task<ActionResult> Update(int id, SpeechDTO speechDTO)
         {
             if (speechDTO.Id != id)
-                BadRequest();
+                return BadRequest();
 
             await _administrationMicroservice.UpdateSpeechAsync(id, speechDTO);
 
