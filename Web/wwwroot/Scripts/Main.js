@@ -251,24 +251,29 @@ function restartCurrentAudio(time, offset) {
     saveAndPlayAudio(currentAudioLink, time, offset);
 }
 
-
 function playNewAudio(link, time, startedAt) {
     console.log(link);
-  
     link = 'audio/' + link + languageId + '.mp3';
 
-    if (currentSource !== undefined) {
-        currentSource.stop();
+    if (currentAudioLink !== undefined) {
+        if (currentSource == undefined) {
+            setTimeout(function () {
+                currentSource.stop();
+                currentAudioLink = link;
+                saveAndPlayAudio(currentAudioLink, false, time, startedAt);
+            }, 5500);
+        }
+        else {
+            currentSource.stop();
+            currentAudioLink = link;
+            saveAndPlayAudio(currentAudioLink, false, time, startedAt);
+        }
     }
-    currentAudioLink = link;
-
-    saveAndPlayAudio(currentAudioLink, false, time, startedAt);
 }
 
 function saveAndPlayAudio(URL, audioLoop, time, startedAt) {
     'use strict';
     timeDiff = time - (new Date()).getTime();
-  
     console.log("URL " + URL);
     console.log(dict[0]);
     if (dict.some(e => e.key === URL)) {
