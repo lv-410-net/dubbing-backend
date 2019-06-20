@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,11 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.Administration.Infrastructur
         public Repository(DubbingContext dbContext)
         {
             _dbContext = dbContext;
+        }
+
+        public IQueryable<T> Query()
+        {
+            return _dbContext.Set<T>();
         }
 
         public async Task<T> GetByIdAsync(int id)
@@ -36,8 +42,8 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.Administration.Infrastructur
         public async Task<List<T>> ListAllAsync()
         {
             return await _dbContext
-                .Set<T>()
-                .ToListAsync();
+               .Set<T>()
+               .ToListAsync();
         }
 
         public async Task AddAsync(T entity)

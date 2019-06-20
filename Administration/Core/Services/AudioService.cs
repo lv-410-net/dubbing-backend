@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SoftServe.ITAcademy.BackendDubbingProject.Administration.Core.DTOs;
 using SoftServe.ITAcademy.BackendDubbingProject.Administration.Core.Entities;
 using SoftServe.ITAcademy.BackendDubbingProject.Administration.Core.Interfaces;
@@ -26,6 +27,13 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.Administration.Core.Services
         {
             _speechRepository = speechRepository;
             _fileSystemRepository = fileSystemRepository;
+        }
+
+        public async Task<List<Audio>> GetAudiosByLangIdPerfIdAsync(int langId, int performanceId)
+        {
+            return await Repository.Query().Include(audio => audio.Speech)
+                .Where(audio => audio.Speech.Performance.Id == performanceId && audio.LanguageId == langId)
+                .ToListAsync();
         }
 
         public override async Task CreateAsync(Audio entity)

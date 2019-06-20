@@ -6,11 +6,17 @@ let connection;
 
 let currentAudioLink;
 
+let performanceID;
+
+let langID;
+
 let languageId;
 
 const performancesAPI = 'api/performance';
 
 let languagesAPI;
+
+let dict = [];
 
 const connectionButton = document.getElementById('connecting-button');
 
@@ -49,9 +55,11 @@ function init() {
 
 function goToLanguagesPart(performanceId) {
     'use strict';
-    
-    languagesAPI = 'api/performance/' + performanceId +'/languages/';
-    
+
+    performanceID = performanceId;
+
+    languagesAPI = 'api/performance/' + performanceId + '/languages/';
+
     getData(languagesAPI).then(response => {
         response.forEach(language => {
             let button = document.createElement('button');
@@ -74,8 +82,10 @@ function goToLanguagesPart(performanceId) {
 function goToStreamingPart(langId) {
     'use strict';
 
+    langID = langId
+
     languageId = '_' + langId;
-    
+
     languagePart.style.display = 'none';
 
     streamingPart.style.display = 'flex';
@@ -99,7 +109,7 @@ function connectToStream() {
 
 function changeButton() {
     'use strict';
-    
+
     connectionButton.style.backgroundColor = 'green';
     connectionButton.disabled = true;
     connectionButton.textContent = 'You are connected to stream';
@@ -138,6 +148,59 @@ function startStream() {
     currentAudioLink = 'audio/Waiting.mp3';
 
     saveAndPlayAudio(currentAudioLink, true);
+
+    preLoadAudio();
+}
+
+function getAudios() {
+    'use strict';
+    console.log('http://192.168.0.100:5000/api/Audio/preload/' + performanceID + '/' + langID);
+    return fetch('api/Audio/preload/' + performanceID + '/' + langID)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('HTTP error, status = ' + response.status);
+            }
+            return response.json();
+        });
+}
+
+
+function preLoadAudio() {
+    'use strict';
+
+    console.log(performanceID);
+    console.log(langID);
+    getAudios().then(response => {
+        response.forEach(audio => savePreLoadAudio(audio.fileName));
+    })
+        .catch(error =>
+            console.log(error)
+        );
+}
+
+function savePreLoadAudio(URL) {
+    //'use strict';
+    console.log("from preload");
+    link = 'audio/' + URL;
+
+    console.log(link);
+
+    return fetch(link)
+        .then(response => response.arrayBuffer())
+        .then(arrayBuffer => {
+            console.log("start download");
+            context.decodeAudioData(
+                arrayBuffer,
+                audioBuffer => {
+                    console.log("start pushing");
+                    dict.push({
+                        key: link,
+                        value: audioBuffer
+                    });
+                }
+            )
+        }
+        )
 }
 
 function endStream() {
@@ -177,6 +240,7 @@ function restartCurrentAudio() {
 }
 
 function playNewAudio(link, time) {
+    console.log(link);
     link = 'audio/' + link + languageId + '.mp3';
 
     if (currentAudioLink !== undefined) {
@@ -190,17 +254,26 @@ function playNewAudio(link, time) {
 function saveAndPlayAudio(URL, audioLoop, time = 0) {
     //'use strict';
 
-    console.log(URL);
-
-    return fetch(URL)
-        .then(response => response.arrayBuffer())
-        .then(arrayBuffer =>
-            context.decodeAudioData(
-                arrayBuffer,
-                audioBuffer => play(audioBuffer, audioLoop, time),
-                error => console.error(error)
+    console.log("URL " + URL);
+    console.log(dict[0]);
+    if (dict.some(e => e.key === URL)) {
+        console.log("we are in");
+        console.log(dict.find((e) => e.key === URL).value);
+        return play(dict.find((e) => e.key === URL).value, audioLoop, time);
+    } else {
+        console.log("not in");
+        return fetch(URL)
+            .then(response => response.arrayBuffer())
+            .then(arrayBuffer =>
+                context.decodeAudioData(
+                    arrayBuffer,
+                    audioBuffer => play(audioBuffer, audioLoop, time),
+                    error => console.error(error)
+                )
             )
-        )
+    }
+
+
 }
 
 function connectToHub() {
