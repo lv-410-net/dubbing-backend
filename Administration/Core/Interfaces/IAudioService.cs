@@ -11,6 +11,8 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.Administration.Core.Interfac
 
         Task<Audio> GetByIdAsync(int id);
 
+        Task<List<Audio>> GetAudiosByLangIdPerfIdAsync(int langid, int performanceId);
+
         Task CreateAsync(Audio entity);
 
         Task UploadAsync(Audio audio, AudioFileDTO audioFileDTO);
