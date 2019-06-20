@@ -181,7 +181,8 @@ function preLoadAudio() {
     console.log(performanceID);
     console.log(langID);
     getAudios().then(response => {
-        response.forEach(audio => savePreLoadAudio(audio.fileName));
+        console.log(response.filename);
+        response.forEach(response => savePreLoadAudio(response.fileName));
     })
         .catch(error =>
             console.log(error)
@@ -193,8 +194,8 @@ function savePreLoadAudio(URL) {
     console.log("from preload");
     link = 'audio/' + URL;
 
-    console.log(link);
-
+    console.log("from savePreloadAudio"+link);
+    var name = link;
     return fetch(link)
         .then(response => response.arrayBuffer())
         .then(arrayBuffer => {
@@ -204,12 +205,12 @@ function savePreLoadAudio(URL) {
                 audioBuffer => {
                     console.log("start pushing");
                     dict.push({
-                        key: link,
+                        key: name,
                         value: audioBuffer
                     });
                 }
             )
-        }
+}
         )
 }
 
@@ -252,7 +253,7 @@ function restartCurrentAudio(time, offset) {
 }
 
 function playNewAudio(link, time, startedAt) {
-    console.log(link);
+    console.log("from playNewAudio"+link);
     link = 'audio/' + link + languageId + '.mp3';
 
     if (currentAudioLink !== undefined) {
@@ -275,7 +276,7 @@ function saveAndPlayAudio(URL, audioLoop, time, startedAt) {
     'use strict';
     timeDiff = time - (new Date()).getTime();
     console.log("URL " + URL);
-    console.log(dict[0]);
+    console.log(dict);
     if (dict.some(e => e.key === URL)) {
         console.log("we are in");
         console.log(dict.find((e) => e.key === URL).value);
