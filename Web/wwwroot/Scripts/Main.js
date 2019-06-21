@@ -12,6 +12,12 @@ let langID;
 
 let languageId;
 
+let pauseTime = 0;
+
+let tempBuffer;
+
+let isLoaded;
+
 let timeDiff;
 
 const performancesAPI = 'api/performance';
@@ -135,6 +141,8 @@ function handleMessage(link, time, startedAt) {
             resumeStream();
             break;
         case 'Pause':
+            pauseTime = time;
+            console.log(time);
             pauseStream();
             break;
         case currentAudioLink:
@@ -155,9 +163,13 @@ function startStream(time, shouldReload) {
     }
     console.log("from else");
 
+    isLoaded = false;
+    console.log(currentAudioLink);
     currentAudioLink = 'audio/Waiting.mp3';
 
     saveAndPlayAudio(currentAudioLink, true, time);
+
+    isLoaded = true;
 
     preLoadAudio();
 }
@@ -227,12 +239,13 @@ function endStream() {
 function resumeStream() {
     'use strict';
 
-    saveAndPlayAudio(currentAudioLink);
+    play(tempBuffer, false, pauseTime);
 }
 
 function pauseStream() {
     'use strict';
 
+    tempBuffer = currentSource.buffer;
     currentSource.stop();
 }
 
@@ -368,7 +381,3 @@ function getData(api) {
             return response.json();
         });
 }
-
-
-
-
