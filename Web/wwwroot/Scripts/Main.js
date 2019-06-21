@@ -129,6 +129,7 @@ function handleMessage(link, time, startedAt) {
     'use strict';
 
     console.log('We get: ' + link);
+    console.log(startedAt);
 
     switch (link) {
         case 'Start':
@@ -138,11 +139,11 @@ function handleMessage(link, time, startedAt) {
             endStream();
             break;
         case 'Resume':
-            resumeStream();
+            resumeStream(time);
             break;
         case 'Pause':
-            pauseTime = time;
-            console.log(time);
+            pauseTime = time - startedAt;
+            console.log(pauseTime);
             pauseStream();
             break;
         case currentAudioLink:
@@ -158,10 +159,8 @@ function startStream(time, shouldReload) {
     'use strict';
     if(shouldReload)
     {
-        console.log("from if");
         location.reload(true);
     }
-    console.log("from else");
 
     isLoaded = false;
     console.log(currentAudioLink);
@@ -176,7 +175,7 @@ function startStream(time, shouldReload) {
 
 function getAudios() {
     'use strict';
-    console.log('http://192.168.0.100:5000/api/Audio/preload/' + performanceID + '/' + langID);
+    //console.log('http://192.168.0.100:5000/api/Audio/preload/' + performanceID + '/' + langID);
     return fetch('api/Audio/preload/' + performanceID + '/' + langID)
         .then(response => {
             if (!response.ok) {
@@ -190,10 +189,10 @@ function getAudios() {
 function preLoadAudio() {
     'use strict';
 
-    console.log(performanceID);
-    console.log(langID);
+    //console.log(performanceID);
+    //console.log(langID);
     getAudios().then(response => {
-        console.log(response.filename);
+        //console.log(response.filename);
         response.forEach(response => savePreLoadAudio(response.fileName));
     })
         .catch(error =>
@@ -203,19 +202,19 @@ function preLoadAudio() {
 
 function savePreLoadAudio(URL) {
     //'use strict';
-    console.log("from preload");
+    //console.log("from preload");
     link = 'audio/' + URL;
 
-    console.log("from savePreloadAudio"+link);
+    //console.log("from savePreloadAudio"+link);
     var name = link;
     return fetch(link)
         .then(response => response.arrayBuffer())
         .then(arrayBuffer => {
-            console.log("start download");
+            //console.log("start download");
             context.decodeAudioData(
                 arrayBuffer,
                 audioBuffer => {
-                    console.log("start pushing");
+                    //console.log("start pushing");
                     dict.push({
                         key: name,
                         value: audioBuffer
@@ -236,10 +235,10 @@ function endStream() {
     console.log(shouldReload);
 }
 
-function resumeStream() {
+function resumeStream(time) {
     'use strict';
 
-    play(tempBuffer, false, pauseTime);
+    play(tempBuffer, false, time, time - pauseTime);
 }
 
 function pauseStream() {
@@ -257,42 +256,30 @@ function displayLinks() {
     linkPart.style.display = 'flex';
 }
 
-function restartCurrentAudio(time, offset) {
+function restartCurrentAudio(time, startedAt) {
     'use strict';
 
     currentSource.stop();
 
-    saveAndPlayAudio(currentAudioLink, time, offset);
+    saveAndPlayAudio(currentAudioLink, time, startedAt);
 }
 
 function playNewAudio(link, time, startedAt) {
-    console.log("from playNewAudio"+link);
+    console.log("from playNewAudio" + link);
     link = 'audio/' + link + languageId + '.mp3';
 
-    if (currentAudioLink !== undefined) {
-        if (currentSource == undefined) {
-            setTimeout(function () {
-                currentSource.stop();
-                currentAudioLink = link;
-                saveAndPlayAudio(currentAudioLink, false, time, startedAt);
-            }, 5500);
-        }
-        else {
-            currentSource.stop();
-            currentAudioLink = link;
-            saveAndPlayAudio(currentAudioLink, false, time, startedAt);
-        }
-    }
+    currentAudioLink = link;
+    saveAndPlayAudio(currentAudioLink, false, time, startedAt);
 }
 
 function saveAndPlayAudio(URL, audioLoop, time, startedAt) {
     'use strict';
     timeDiff = time - (new Date()).getTime();
-    console.log("URL " + URL);
-    console.log(dict);
+    //console.log("URL " + URL);
+    //console.log(dict);
     if (dict.some(e => e.key === URL)) {
-        console.log("we are in");
-        console.log(dict.find((e) => e.key === URL).value);
+        //console.log("we are in");
+        //console.log(dict.find((e) => e.key === URL).value);
         return play(dict.find((e) => e.key === URL).value, audioLoop, time, startedAt);
     } else {
         console.log("not in");
@@ -354,6 +341,8 @@ function play(currentBuffer, loopCondition, time, startedAt) {
     'use strict';
 
     startedAt = startedAt || time;
+    if (currentSource !== undefined) 
+        currentSource.stop();
 
     currentSource = context.createBufferSource();
 
