@@ -193,6 +193,13 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.Administration.Core
             return _mapper.Map<List<Speech>, List<SpeechDTO>>(listOfSpeeches);
         }
 
+        public async Task<List<AudioDTO>> GetAudiosByLanguageIDPerformanceIdAsync(int langId, int performanceId)
+        {
+            var listOfAudios = await _audioService.GetAudiosByLangIdPerfIdAsync(langId, performanceId);
+
+            return _mapper.Map<List<Audio>, List<AudioDTO>>(listOfAudios);
+        }
+
         public async Task<List<AudioDTO>> GetAudiosBySpeechIdAsync(int id)
         {
             var listOfAudios = await _speechService.GetChildrenByIdAsync(id);

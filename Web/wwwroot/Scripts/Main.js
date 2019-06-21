@@ -6,6 +6,10 @@ let connection;
 
 let currentAudioLink;
 
+let performanceID;
+
+let langID;
+
 let languageId;
 
 let pauseTime = 0;
@@ -14,9 +18,15 @@ let tempBuffer;
 
 let isLoaded;
 
+let timeDiff;
+
 const performancesAPI = 'api/performance';
 
 let languagesAPI;
+
+let dict = [];
+
+let shouldReload = false;
 
 const connectionButton = document.getElementById('connecting-button');
 
@@ -55,9 +65,11 @@ function init() {
 
 function goToLanguagesPart(performanceId) {
     'use strict';
-    
-    languagesAPI = 'api/performance/' + performanceId +'/languages/';
-    
+
+    performanceID = performanceId;
+
+    languagesAPI = 'api/performance/' + performanceId + '/languages/';
+
     getData(languagesAPI).then(response => {
         response.forEach(language => {
             let button = document.createElement('button');
@@ -80,8 +92,10 @@ function goToLanguagesPart(performanceId) {
 function goToStreamingPart(langId) {
     'use strict';
 
+    langID = langId
+
     languageId = '_' + langId;
-    
+
     languagePart.style.display = 'none';
 
     streamingPart.style.display = 'flex';
@@ -105,20 +119,20 @@ function connectToStream() {
 
 function changeButton() {
     'use strict';
-    
+
     connectionButton.style.backgroundColor = 'green';
     connectionButton.disabled = true;
     connectionButton.textContent = 'You are connected to stream';
 }
 
-function handleMessage(link, time) {
+function handleMessage(link, time, startedAt) {
     'use strict';
 
     console.log('We get: ' + link);
 
     switch (link) {
         case 'Start':
-            startStream();
+            startStream(time, shouldReload);
             break;
         case 'End':
             endStream();
@@ -132,24 +146,84 @@ function handleMessage(link, time) {
             pauseStream();
             break;
         case currentAudioLink:
-            restartCurrentAudio();
-            break;
+           restartCurrentAudio();
+           break;
         default:
-            playNewAudio(link, time);
+            playNewAudio(link, time, startedAt);
             break;
     }
 }
 
-function startStream() {
+function startStream(time, shouldReload) {
     'use strict';
+    if(shouldReload)
+    {
+        console.log("from if");
+        location.reload(true);
+    }
+    console.log("from else");
 
     isLoaded = false;
     console.log(currentAudioLink);
     currentAudioLink = 'audio/Waiting.mp3';
 
-    saveAndPlayAudio(currentAudioLink, true);
+    saveAndPlayAudio(currentAudioLink, true, time);
 
     isLoaded = true;
+
+    preLoadAudio();
+}
+
+function getAudios() {
+    'use strict';
+    console.log('http://192.168.0.100:5000/api/Audio/preload/' + performanceID + '/' + langID);
+    return fetch('api/Audio/preload/' + performanceID + '/' + langID)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('HTTP error, status = ' + response.status);
+            }
+            return response.json();
+        });
+}
+
+
+function preLoadAudio() {
+    'use strict';
+
+    console.log(performanceID);
+    console.log(langID);
+    getAudios().then(response => {
+        console.log(response.filename);
+        response.forEach(response => savePreLoadAudio(response.fileName));
+    })
+        .catch(error =>
+            console.log(error)
+        );
+}
+
+function savePreLoadAudio(URL) {
+    //'use strict';
+    console.log("from preload");
+    link = 'audio/' + URL;
+
+    console.log("from savePreloadAudio"+link);
+    var name = link;
+    return fetch(link)
+        .then(response => response.arrayBuffer())
+        .then(arrayBuffer => {
+            console.log("start download");
+            context.decodeAudioData(
+                arrayBuffer,
+                audioBuffer => {
+                    console.log("start pushing");
+                    dict.push({
+                        key: name,
+                        value: audioBuffer
+                    });
+                }
+            )
+}
+        )
 }
 
 function endStream() {
@@ -158,6 +232,8 @@ function endStream() {
     currentSource.stop();
 
     displayLinks();
+    shouldReload = true;
+    console.log(shouldReload);
 }
 
 function resumeStream() {
@@ -181,41 +257,55 @@ function displayLinks() {
     linkPart.style.display = 'flex';
 }
 
-function restartCurrentAudio() {
+function restartCurrentAudio(time, offset) {
     'use strict';
 
     currentSource.stop();
 
-    saveAndPlayAudio(currentAudioLink);
+    saveAndPlayAudio(currentAudioLink, time, offset);
 }
 
-function playNewAudio(link, time) {
-    'use strict';
-
+function playNewAudio(link, time, startedAt) {
+    console.log("from playNewAudio"+link);
     link = 'audio/' + link + languageId + '.mp3';
 
-    if (currentSource !== undefined) {
-        currentSource.stop();
+    if (currentAudioLink !== undefined) {
+        if (currentSource == undefined) {
+            setTimeout(function () {
+                currentSource.stop();
+                currentAudioLink = link;
+                saveAndPlayAudio(currentAudioLink, false, time, startedAt);
+            }, 5500);
+        }
+        else {
+            currentSource.stop();
+            currentAudioLink = link;
+            saveAndPlayAudio(currentAudioLink, false, time, startedAt);
+        }
     }
-    currentAudioLink = link;
-
-    saveAndPlayAudio(currentAudioLink, false, time);
 }
 
-function saveAndPlayAudio(URL, audioLoop, time = 0) {
-    //'use strict';
-
-    console.log(URL);
-
-    return fetch(URL)
-        .then(response => response.arrayBuffer())
-        .then(arrayBuffer =>
-            context.decodeAudioData(
-                arrayBuffer,
-                audioBuffer => play(audioBuffer, audioLoop, time),
-                error => console.error(error)
+function saveAndPlayAudio(URL, audioLoop, time, startedAt) {
+    'use strict';
+    timeDiff = time - (new Date()).getTime();
+    console.log("URL " + URL);
+    console.log(dict);
+    if (dict.some(e => e.key === URL)) {
+        console.log("we are in");
+        console.log(dict.find((e) => e.key === URL).value);
+        return play(dict.find((e) => e.key === URL).value, audioLoop, time, startedAt);
+    } else {
+        console.log("not in");
+        return fetch(URL)
+            .then(response => response.arrayBuffer())
+            .then(arrayBuffer =>
+                context.decodeAudioData(
+                    arrayBuffer,
+                    audioBuffer => play(audioBuffer, audioLoop, time, startedAt),
+                    error => console.error(error)
+                )
             )
-        )
+    }
 }
 
 function connectToHub() {
@@ -225,8 +315,8 @@ function connectToHub() {
         .withUrl("/StreamHub")
         .build();
 
-    connection.on("ReceiveMessage", function (message, time) {
-        handleMessage(message, time);
+    connection.on("ReceiveMessage", function (message, time, startedAt) {
+        handleMessage(message, time, startedAt);
     });
 
     connection.start().catch(function (err) {
@@ -260,8 +350,10 @@ function createAndPlaySilent() {
     pauseSource.start();
 }
 
-function play(currentBuffer, loopCondition, time) {
+function play(currentBuffer, loopCondition, time, startedAt) {
     'use strict';
+
+    startedAt = startedAt || time;
 
     currentSource = context.createBufferSource();
 
@@ -271,7 +363,11 @@ function play(currentBuffer, loopCondition, time) {
 
     currentSource.loop = loopCondition;
 
-    currentSource.start(0, time);
+    let offset = ((new Date()).getTime() - startedAt + timeDiff) / 1000;
+    if (offset < 0)
+        offset = 0;
+
+    currentSource.start(0, offset);
 }
 
 function getData(api) {
