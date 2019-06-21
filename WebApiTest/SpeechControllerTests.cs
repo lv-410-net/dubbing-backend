@@ -15,6 +15,22 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.WebApiTest
     [ExcludeFromCodeCoverage]
     public class SpeechControllerTests
     {
+        private const int SomeId = 1;
+        private const int OtherId = 2;
+        private const int SomeOrder = 1;
+        private const string SomeText = "Speech1";
+        private const int SomeDuration = 120;
+        private const int SomePerfomanceId = 1;
+
+        private static SpeechDTO SomeSpeech = new SpeechDTO
+        {
+            Id = SomeId,
+            Order = SomeOrder,
+            Text = SomeText,
+            Duration = SomeDuration,
+            PerformanceId = SomePerfomanceId
+        };
+
         [Fact]
         public async Task TestGetAll_200OK()
         {
@@ -38,19 +54,16 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.WebApiTest
         {
             // Arrange
             var mock = new Mock<IAdministrationService>();
-            int id = 1;
-            mock.Setup(service => service.GetSpeechByIdAsync(id)).Returns(async () => {
-                return new SpeechDTO { Id = 1, Order = 1, Text = "Speech1", Duration = 120, PerformanceId = 1 };
-            });
+            mock.Setup(service => service.GetSpeechByIdAsync(SomeId)).Returns(async () => { return SomeSpeech; });
             var controller = new SpeechController(mock.Object);
 
             // Act
-            var result = (await controller.GetById(id)).Result as ObjectResult;
+            var result = (await controller.GetById(SomeId)).Result as ObjectResult;
             var value = result.Value as SpeechDTO;
 
             // Assert
             Assert.NotNull(value);
-            Assert.Equal(id, value.Id);
+            Assert.Equal(SomeId, value.Id);
             Assert.Equal(StatusCodes.Status200OK, result.StatusCode);
         }
 
@@ -59,12 +72,11 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.WebApiTest
         {
             // Arrange
             var mock = new Mock<IAdministrationService>();
-            int id = 1;
-            mock.Setup(service => service.GetSpeechByIdAsync(id)).Returns(async () => { return null; });
+            mock.Setup(service => service.GetSpeechByIdAsync(SomeId)).Returns(async () => { return null; });
             var controller = new SpeechController(mock.Object);
 
             // Act
-            var result = (await controller.GetById(id)).Result as IStatusCodeActionResult;
+            var result = (await controller.GetById(SomeId)).Result as IStatusCodeActionResult;
 
             // Assert
             Assert.Equal(StatusCodes.Status404NotFound, result.StatusCode);
@@ -74,17 +86,16 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.WebApiTest
         public async Task TestCreate_201Created()
         {
             // Arrange
-            SpeechDTO speech = new SpeechDTO { Id = 1, Order = 1, Text = "Speech1", Duration = 120, PerformanceId = 1 };
             var mock = new Mock<IAdministrationService>();
             var controller = new SpeechController(mock.Object);
 
             // Act
-            var result = (await controller.Create(speech)).Result as ObjectResult;
+            var result = (await controller.Create(SomeSpeech)).Result as ObjectResult;
             var value = result.Value as SpeechDTO;
 
             // Assert
             Assert.NotNull(value);
-            Assert.Equal(speech.Id, value.Id);
+            Assert.Equal(SomeSpeech.Id, value.Id);
             Assert.Equal(StatusCodes.Status201Created, result.StatusCode);
         }
 
@@ -94,11 +105,9 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.WebApiTest
             // Arrange
             var mock = new Mock<IAdministrationService>();
             var controller = new SpeechController(mock.Object);
-            var id = 1;
-            SpeechDTO speech = new SpeechDTO { Id = 1, Order = 1, Text = "Speech1", Duration = 120, PerformanceId = 1 };
 
             // Act
-            var result = await controller.Update(id, speech) as IStatusCodeActionResult;
+            var result = await controller.Update(SomeId, SomeSpeech) as IStatusCodeActionResult;
 
             // Assert
             Assert.Equal(StatusCodes.Status204NoContent, result.StatusCode);
@@ -110,11 +119,9 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.WebApiTest
             // Arrange
             var mock = new Mock<IAdministrationService>();
             var controller = new SpeechController(mock.Object);
-            var id = 2;
-            SpeechDTO speech = new SpeechDTO { Id = 1, Order = 1, Text = "Speech1", Duration = 120, PerformanceId = 1 };
 
             // Act
-            var result = await controller.Update(id, speech) as IStatusCodeActionResult;
+            var result = await controller.Update(OtherId, SomeSpeech) as IStatusCodeActionResult;
 
             // Assert
             Assert.Equal(StatusCodes.Status400BadRequest, result.StatusCode);
@@ -126,10 +133,9 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.WebApiTest
             // Arrange
             var mock = new Mock<IAdministrationService>();
             var controller = new SpeechController(mock.Object);
-            var id = 2;
 
             // Act
-            var result = await controller.Delete(id) as IStatusCodeActionResult;
+            var result = await controller.Delete(SomeId) as IStatusCodeActionResult;
 
             // Assert
             Assert.Equal(StatusCodes.Status204NoContent, result.StatusCode);
@@ -140,12 +146,11 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.WebApiTest
         {
             // Arrange
             var mock = new Mock<IAdministrationService>();
-            int id = 1;
-            mock.Setup(service => service.GetAudiosBySpeechIdAsync(id)).Returns(async () => { return DullData.GetAllAudioDTOs(); });
+            mock.Setup(service => service.GetAudiosBySpeechIdAsync(SomeId)).Returns(async () => { return DullData.GetAllAudioDTOs(); });
             var controller = new SpeechController(mock.Object);
 
             // Act
-            var result = (await controller.GetByIdWithChildren(id)).Result as ObjectResult;
+            var result = (await controller.GetByIdWithChildren(SomeId)).Result as ObjectResult;
             var value = result.Value as List<AudioDTO>;
 
             // Assert
@@ -159,12 +164,11 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.WebApiTest
         {
             // Arrange
             var mock = new Mock<IAdministrationService>();
-            int id = 1;
-            mock.Setup(service => service.GetAudiosBySpeechIdAsync(id)).Returns(async () => { return null; });
+            mock.Setup(service => service.GetAudiosBySpeechIdAsync(SomeId)).Returns(async () => { return null; });
             var controller = new PerformanceController(mock.Object);
 
             // Act
-            var result = (await controller.GetByIdWithChildren(id)).Result as IStatusCodeActionResult;
+            var result = (await controller.GetByIdWithChildren(SomeId)).Result as IStatusCodeActionResult;
 
             // Assert
             Assert.Equal(StatusCodes.Status400BadRequest, result.StatusCode);

@@ -15,6 +15,39 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.WebApiTest
     [ExcludeFromCodeCoverage]
     public class PerformanceControllerTests
     {
+        private const int SomeId = 1;
+        private const int OtherId = 2;
+        private const string SomeTitle = "Performance1";
+        private const string SomeDescription = "Description of perfomance1";
+        private const string SomeName = "English";
+        private const int SomeOrder = 1;
+        private const string SomeText = "Speech1";
+        private const int SomeDuration = 120;
+        private const int SomePerfomanceId = 1;
+
+        private static PerformanceDTO SomePerformance = new PerformanceDTO
+        {
+            Id = SomeId,
+            Title = SomeTitle,
+            Description = SomeDescription
+        };
+
+        private static SpeechDTO SomeSpeech = new SpeechDTO
+        {
+            Id = SomeId,
+            Order = SomeOrder,
+            Text = SomeText,
+            Duration = SomeDuration,
+            PerformanceId = SomePerfomanceId
+        };
+
+        private static LanguageDTO SomeLanguage = new LanguageDTO
+        {
+            Id = SomeId,
+            Name = SomeName
+        };
+
+
         [Fact]
         public async Task TestGetAll_200OK()
         {
@@ -28,8 +61,11 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.WebApiTest
             var value = result.Value as List<PerformanceDTO>;
 
             // Assert
+            Assert.NotNull(value);
             Assert.NotEmpty(value);
             Assert.Equal(3, value.Count);
+            Assert.Equal(value[0].Id, SomePerformance.Id);
+            Assert.Equal("Performance3", value[value.Count - 1].Title);
             Assert.Equal(StatusCodes.Status200OK, result.StatusCode);
         }
 
@@ -38,19 +74,16 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.WebApiTest
         {
             // Arrange
             var mock = new Mock<IAdministrationService>();
-            int id = 1;
-            mock.Setup(service => service.GetPerformanceByIdAsync(id)).Returns(async () => {
-                return new PerformanceDTO { Id = 1, Title = "Perfomance1", Description = "Description of perfomance1" };
-            });
+            mock.Setup(service => service.GetPerformanceByIdAsync(SomeId)).Returns(async () => { return SomePerformance; });
             var controller = new PerformanceController(mock.Object);
 
             // Act
-            var result = (await controller.GetById(id)).Result as ObjectResult;
+            var result = (await controller.GetById(SomeId)).Result as ObjectResult;
             var value = result.Value as PerformanceDTO;
 
             // Assert
             Assert.NotNull(value);
-            Assert.Equal(id, value.Id);
+            Assert.Equal(SomeId, value.Id);
             Assert.Equal(StatusCodes.Status200OK, result.StatusCode);
         }
 
@@ -59,12 +92,11 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.WebApiTest
         {
             // Arrange
             var mock = new Mock<IAdministrationService>();
-            int id = 1;
-            mock.Setup(service => service.GetPerformanceByIdAsync(id)).Returns(async () => { return null; });
+            mock.Setup(service => service.GetPerformanceByIdAsync(SomeId)).Returns(async () => { return null; });
             var controller = new LanguageController(mock.Object);
 
             // Act
-            var result = (await controller.GetById(id)).Result as IStatusCodeActionResult;
+            var result = (await controller.GetById(SomeId)).Result as IStatusCodeActionResult;
 
             // Assert
             Assert.Equal(StatusCodes.Status404NotFound, result.StatusCode);
@@ -76,15 +108,14 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.WebApiTest
             // Arrange
             var mock = new Mock<IAdministrationService>();
             var controller = new PerformanceController(mock.Object);
-            PerformanceDTO performance = new PerformanceDTO { Id = 1, Title = "Perfomance1", Description = "Description of perfomance1" };
 
             // Act
-            var result = (await controller.Create(performance)).Result as ObjectResult;
+            var result = (await controller.Create(SomePerformance)).Result as ObjectResult;
             var value = result.Value as PerformanceDTO;
 
             // Assert
             Assert.NotNull(value);
-            Assert.Equal(performance.Id, value.Id);
+            Assert.Equal(SomePerformance.Id, value.Id);
             Assert.Equal(StatusCodes.Status201Created, result.StatusCode);
         }
 
@@ -94,11 +125,9 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.WebApiTest
             // Arrange
             var mock = new Mock<IAdministrationService>();
             var controller = new PerformanceController(mock.Object);
-            var id = 1;
-            PerformanceDTO performance = new PerformanceDTO { Id = 1, Title = "Perfomance1", Description = "Description of perfomance1" };
 
             // Act
-            var result = await controller.Update(id, performance) as IStatusCodeActionResult;
+            var result = await controller.Update(SomeId, SomePerformance) as IStatusCodeActionResult;
 
             // Assert
             Assert.Equal(StatusCodes.Status204NoContent, result.StatusCode);
@@ -110,11 +139,9 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.WebApiTest
             // Arrange
             var mock = new Mock<IAdministrationService>();
             var controller = new PerformanceController(mock.Object);
-            var id = 2;
-            PerformanceDTO performance = new PerformanceDTO { Id = 1, Title = "Perfomance1", Description = "Description of perfomance1" };
 
             // Act
-            var result = await controller.Update(id, performance) as IStatusCodeActionResult;
+            var result = await controller.Update(OtherId, SomePerformance) as IStatusCodeActionResult;
 
             // Assert
             Assert.Equal(StatusCodes.Status400BadRequest, result.StatusCode);
@@ -126,10 +153,9 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.WebApiTest
             // Arrange
             var mock = new Mock<IAdministrationService>();
             var controller = new PerformanceController(mock.Object);
-            var id = 2;
 
             // Act
-            var result = await controller.Delete(id) as IStatusCodeActionResult;
+            var result = await controller.Delete(SomeId) as IStatusCodeActionResult;
 
             // Assert
             Assert.Equal(StatusCodes.Status204NoContent, result.StatusCode);
@@ -140,17 +166,19 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.WebApiTest
         {
             // Arrange
             var mock = new Mock<IAdministrationService>();
-            int id = 1;
-            mock.Setup(service => service.GetSpeechesByPerformanceIdAsync(id)).Returns(async () => { return DullData.GetAllSpeechDTOs(); });
+            mock.Setup(service => service.GetSpeechesByPerformanceIdAsync(SomeId)).Returns(async () => { return DullData.GetAllSpeechDTOs(); });
             var controller = new PerformanceController(mock.Object);
 
             // Act
-            var result = (await controller.GetByIdWithChildren(id)).Result as ObjectResult;
+            var result = (await controller.GetByIdWithChildren(SomeId)).Result as ObjectResult;
             var value = result.Value as List<SpeechDTO>;
 
             // Assert
+            Assert.NotNull(value);
             Assert.NotEmpty(value);
             Assert.Equal(3, value.Count);
+            Assert.Equal(value[0].Id, SomeSpeech.Id);
+            Assert.Equal("Speech3", value[value.Count - 1].Text);
             Assert.Equal(StatusCodes.Status200OK, result.StatusCode);
         }
 
@@ -159,12 +187,11 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.WebApiTest
         {
             // Arrange
             var mock = new Mock<IAdministrationService>();
-            int id = 1;
-            mock.Setup(service => service.GetSpeechesByPerformanceIdAsync(id)).Returns(async () => { return null; });
+            mock.Setup(service => service.GetSpeechesByPerformanceIdAsync(SomeId)).Returns(async () => { return null; });
             var controller = new PerformanceController(mock.Object);
 
             // Act
-            var result = (await controller.GetByIdWithChildren(id)).Result as IStatusCodeActionResult;
+            var result = (await controller.GetByIdWithChildren(SomeId)).Result as IStatusCodeActionResult;
 
             // Assert
             Assert.Equal(StatusCodes.Status400BadRequest, result.StatusCode);
@@ -175,17 +202,19 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.WebApiTest
         {
             // Arrange
             var mock = new Mock<IAdministrationService>();
-            int id = 1;
-            mock.Setup(service => service.GetLanguagesByPerformanceIdAsync(id)).Returns(async () => { return DullData.GetAllLanguageDTOs(); });
+            mock.Setup(service => service.GetLanguagesByPerformanceIdAsync(SomeId)).Returns(async () => { return DullData.GetAllLanguageDTOs(); });
             var controller = new PerformanceController(mock.Object);
 
             // Act
-            var result = (await controller.GetByIdLanguages(id)).Result as ObjectResult;
+            var result = (await controller.GetByIdLanguages(SomeId)).Result as ObjectResult;
             var value = result.Value as List<LanguageDTO>;
 
             // Assert
+            Assert.NotNull(value);
             Assert.NotEmpty(value);
             Assert.Equal(3, value.Count);
+            Assert.Equal(value[0].Id, SomeLanguage.Id);
+            Assert.Equal("Spanish", value[value.Count - 1].Name);
             Assert.Equal(StatusCodes.Status200OK, result.StatusCode);
         }
     }

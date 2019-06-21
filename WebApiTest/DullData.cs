@@ -31,9 +31,9 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.WebApiTest
         {
             return new List<PerformanceDTO>()
             {
-                new PerformanceDTO { Id = 1, Title = "Perfomance1", Description = "Description of perfomance1" },
-                new PerformanceDTO { Id = 2, Title = "Perfomance2", Description = "Description of perfomance2" },
-                new PerformanceDTO { Id = 3, Title = "Perfomance3", Description = "Description of perfomance3" },
+                new PerformanceDTO { Id = 1, Title = "Performance1", Description = "Description of performance1" },
+                new PerformanceDTO { Id = 2, Title = "Performance2", Description = "Description of performance2" },
+                new PerformanceDTO { Id = 3, Title = "Performance3", Description = "Description of performance3" },
             };
         }
 

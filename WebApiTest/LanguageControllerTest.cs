@@ -15,6 +15,16 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.WebApiTest
     [ExcludeFromCodeCoverage]
     public class LanguageControllerTest
     {
+        private const int SomeId = 1;
+        private const int OtherId = 2;
+        private const string SomeName = "English";
+
+        private static LanguageDTO SomeLanguage = new LanguageDTO
+        {
+            Id = SomeId,
+            Name = SomeName
+        };
+
         [Fact]
         public async Task TestGetAll_200OK()
         {
@@ -28,8 +38,11 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.WebApiTest
             var value = result.Value as List<LanguageDTO>;
 
             // Assert
+            Assert.NotNull(value);
             Assert.NotEmpty(value);
             Assert.Equal(3, value.Count);
+            Assert.Equal(value[0].Id, SomeLanguage.Id);
+            Assert.Equal("Spanish", value[value.Count - 1].Name);
             Assert.Equal(StatusCodes.Status200OK, result.StatusCode);
         }
 
@@ -38,19 +51,16 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.WebApiTest
         {
             // Arrange
             var mock = new Mock<IAdministrationService>();
-            int id = 1;
-            mock.Setup(service => service.GetLanguageByIdAsync(id)).Returns(async () => {
-                return new LanguageDTO { Id = 1, Name = "English" };
-            });
+            mock.Setup(service => service.GetLanguageByIdAsync(SomeId)).Returns(async () => { return SomeLanguage; });
             var controller = new LanguageController(mock.Object);
 
             // Act
-            var result = (await controller.GetById(id)).Result as ObjectResult;
+            var result = (await controller.GetById(SomeId)).Result as ObjectResult;
             var value = result.Value as LanguageDTO;
 
             // Assert
             Assert.NotNull(value);
-            Assert.Equal(id, value.Id);
+            Assert.Equal(SomeId, value.Id);
             Assert.Equal(StatusCodes.Status200OK, result.StatusCode);
         }
 
@@ -59,12 +69,11 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.WebApiTest
         {
             // Arrange
             var mock = new Mock<IAdministrationService>();
-            int id = 1;
-            mock.Setup(service => service.GetLanguageByIdAsync(id)).Returns(async () => { return null; });
+            mock.Setup(service => service.GetLanguageByIdAsync(SomeId)).Returns(async () => { return null; });
             var controller = new LanguageController(mock.Object);
 
             // Act
-            var result = (await controller.GetById(id)).Result as IStatusCodeActionResult;
+            var result = (await controller.GetById(SomeId)).Result as IStatusCodeActionResult;
 
             // Assert
             Assert.Equal(StatusCodes.Status404NotFound, result.StatusCode);
@@ -74,17 +83,16 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.WebApiTest
         public async Task TestCreate_201Created()
         {
             // Arrange
-            LanguageDTO language = new LanguageDTO { Id = 2, Name = "English" };
             var mock = new Mock<IAdministrationService>();
             var controller = new LanguageController(mock.Object);
 
             // Act
-            var result = (await controller.Create(language)).Result as ObjectResult;
+            var result = (await controller.Create(SomeLanguage)).Result as ObjectResult;
             var value = result.Value as LanguageDTO;
 
             // Assert
             Assert.NotNull(value);
-            Assert.Equal(language.Id, value.Id);
+            Assert.Equal(SomeLanguage.Id, value.Id);
             Assert.Equal(StatusCodes.Status201Created, result.StatusCode);
         }
 
@@ -94,11 +102,9 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.WebApiTest
             // Arrange
             var mock = new Mock<IAdministrationService>();
             var controller = new LanguageController(mock.Object);
-            var id = 1;
-            LanguageDTO language = new LanguageDTO { Id = 1, Name = "English" };
 
             // Act
-            var result = await controller.Update(id, language) as IStatusCodeActionResult;
+            var result = await controller.Update(SomeId, SomeLanguage) as IStatusCodeActionResult;
 
             // Assert
             Assert.Equal(StatusCodes.Status204NoContent, result.StatusCode);
@@ -110,11 +116,9 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.WebApiTest
             // Arrange
             var mock = new Mock<IAdministrationService>();
             var controller = new LanguageController(mock.Object);
-            var id = 2;
-            LanguageDTO language = new LanguageDTO { Id = 1, Name = "English" };
 
             // Act
-            var result = await controller.Update(id, language) as IStatusCodeActionResult;
+            var result = await controller.Update(OtherId, SomeLanguage) as IStatusCodeActionResult;
 
             // Assert
             Assert.Equal(StatusCodes.Status400BadRequest, result.StatusCode);
@@ -126,10 +130,9 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.WebApiTest
             // Arrange
             var mock = new Mock<IAdministrationService>();
             var controller = new LanguageController(mock.Object);
-            var id = 2;
 
             // Act
-            var result = await controller.Delete(id) as IStatusCodeActionResult;
+            var result = await controller.Delete(SomeId) as IStatusCodeActionResult;
 
             // Assert
             Assert.Equal(StatusCodes.Status204NoContent, result.StatusCode);
