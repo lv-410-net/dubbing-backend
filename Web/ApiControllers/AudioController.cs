@@ -104,7 +104,7 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.Web.ApiControllers
         public async Task<ActionResult> Update(int id, AudioDTO audioDTO)
         {
             if (audioDTO.Id != id)
-                BadRequest();
+                return BadRequest();
 
             await _administrationMicroservice.UpdateAudioAsync(id, audioDTO);
 
