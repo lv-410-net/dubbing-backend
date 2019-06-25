@@ -45,7 +45,7 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.Streaming.Core.Hubs
             await Clients.User(_adminId).SendAsync("updateCount", numberOfConnections);
         }
 
-        public async Task SendMessage(string message, long time)
+        public async Task SendMessage(string message)
         {
             switch (message)
             {
@@ -64,21 +64,21 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.Streaming.Core.Hubs
                     break;
             }
 
-            await Clients.Others.SendAsync("ReceiveMessage", message, time);
+            await Clients.Others.SendAsync("ReceiveMessage", message);
         }
 
-        public async Task SendMessageAndTime(string message, long time, long startTime)
+        public async Task SendMessageAndTime(string message, long offset)
         {
             _needWait = false;
             _started = true;
-            await Clients.Others.SendAsync("ReceiveMessage", message, time, startTime);
+            await Clients.Others.SendAsync("ReceiveMessage", message, offset);
         }
 
-        public async Task SendMessageToUser(string message, long time, long startTime, bool paused, string connectionId)
+        public async Task SendMessageToUser(string message, long offset, bool paused, string connectionId)
         {
             _needWait = false;
             _started = true;
-            await Clients.Client(connectionId).SendAsync("ReceiveMessage", message, time, startTime, paused);
+            await Clients.Client(connectionId).SendAsync("ReceiveMessage", message, offset, paused);
         }
     }
 }

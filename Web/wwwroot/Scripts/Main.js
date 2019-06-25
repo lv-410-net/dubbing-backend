@@ -125,34 +125,34 @@ function changeButton() {
     connectionButton.textContent = 'You are connected to stream';
 }
 
-function handleMessage(link, time, startedAt, paused) {
+function handleMessage(link, offset, paused) {
     'use strict';
 
     console.log('We get: ' + link);
 
     switch (link) {
         case 'Start':
-            startStream(time, shouldReload);
+            startStream(shouldReload);
             break;
         case 'End':
             endStream();
             break;
         case 'Resume':
-            resumeStream(time);
+            resumeStream();
             break;
         case 'Pause':
-            pauseStream(time, startedAt);
+            pauseStream(offset);
             break;
         case currentAudioLink:
            restartCurrentAudio();
            break;
         default:
-            playNewAudio(link, time, startedAt, paused);
+            playNewAudio(link, offset, paused);
             break;
     }
 }
 
-function startStream(time, shouldReload) {
+function startStream(shouldReload) {
     'use strict';
     if(shouldReload)
     {
@@ -163,7 +163,7 @@ function startStream(time, shouldReload) {
     console.log(currentAudioLink);
     currentAudioLink = 'audio/Waiting.mp3';
 
-    saveAndPlayAudio(currentAudioLink, true, time);
+    saveAndPlayAudio(currentAudioLink, true);
 
     preLoadAudio();
 }
@@ -230,16 +230,17 @@ function endStream() {
     console.log(shouldReload);
 }
 
-function resumeStream(time) {
+function resumeStream() {
     'use strict';
     
-    play(tempBuffer, false, time, time - pauseTime);
+    play(tempBuffer, false, pauseTime);
 }
 
-function pauseStream(time, startedAt) {
+function pauseStream(offset) {
     'use strict';
     
-    pauseTime = time - startedAt;
+    pauseTime = offset;
+    timeDiff = new Date().getTime();
     console.log(pauseTime);
 
     tempBuffer = currentSource.buffer;
@@ -254,31 +255,31 @@ function displayLinks() {
     linkPart.style.display = 'flex';
 }
 
-function restartCurrentAudio(time, startedAt) {
+function restartCurrentAudio(offset) {
     'use strict';
 
     currentSource.stop();
 
-    saveAndPlayAudio(currentAudioLink, time, startedAt);
+    saveAndPlayAudio(currentAudioLink, false, offset);
 }
 
-function playNewAudio(link, time, startedAt, paused) {
+function playNewAudio(link, offset, paused) {
     console.log("from playNewAudio" + link);
     link = 'audio/' + link + languageId + '.mp3';
 
     currentAudioLink = link;
-    saveAndPlayAudio(currentAudioLink, false, time, startedAt, paused);
+    saveAndPlayAudio(currentAudioLink, false, offset, paused);
 }
 
-function saveAndPlayAudio(URL, audioLoop, time, startedAt, paused) {
+function saveAndPlayAudio(URL, audioLoop, offset, paused) {
     'use strict';
-    timeDiff = time - (new Date()).getTime();
+    timeDiff = (new Date()).getTime();
     //console.log("URL " + URL);
     //console.log(dict);
     if (dict.some(e => e.key === URL)) {
         console.log("we are in");
         //console.log(dict.find((e) => e.key === URL).value);
-        play(dict.find((e) => e.key === URL).value, audioLoop, time, startedAt);
+        play(dict.find((e) => e.key === URL).value, audioLoop, offset);
     } else {
         console.log("not in");
         return fetch(URL)
@@ -287,10 +288,10 @@ function saveAndPlayAudio(URL, audioLoop, time, startedAt, paused) {
                 context.decodeAudioData(
                     arrayBuffer,
                     audioBuffer => { 
-                        play(audioBuffer, audioLoop, time, startedAt); 
+                        play(audioBuffer, audioLoop, offset); 
                         if (paused === true) {
                             isLoaded = true;
-                            pauseStream(time, startedAt);
+                            pauseStream(offset);
                         }
                     },
                     error => console.error(error)
@@ -306,8 +307,8 @@ function connectToHub() {
         .withUrl("/StreamHub")
         .build();
 
-    connection.on("ReceiveMessage", function (message, time, startedAt, paused) {
-        handleMessage(message, time, startedAt, paused);
+    connection.on("ReceiveMessage", function (message, offset, paused) {
+        handleMessage(message, offset, paused);
     });
 
     connection.start().catch(function (err) {
@@ -341,10 +342,10 @@ function createAndPlaySilent() {
     pauseSource.start();
 }
 
-function play(currentBuffer, loopCondition, time, startedAt) {
-    'use strict';
+function play(currentBuffer, loopCondition, offset=0) {
+    //'use strict';
 
-    startedAt = startedAt || time;
+    timeDiff = new Date().getTime() - timeDiff;
 
     if (currentAudioLink === 'audio/Waiting.mp3')
             isLoaded = true;
@@ -365,11 +366,11 @@ function play(currentBuffer, loopCondition, time, startedAt) {
 
     currentSource.loop = loopCondition;
 
-    let offset = ((new Date()).getTime() - startedAt + timeDiff - 590) / 1000;
-    if (offset < 0)
-        offset = 0;
+    let offsetFinal = timeDiff / 1000 + offset;
+    if (offsetFinal < 0)
+        offsetFinal = 0;
 
-    currentSource.start(0, offset);
+    currentSource.start(0, offsetFinal);
 }
 
 function getData(api) {
