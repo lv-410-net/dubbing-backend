@@ -125,11 +125,10 @@ function changeButton() {
     connectionButton.textContent = 'You are connected to stream';
 }
 
-function handleMessage(link, time, startedAt) {
+function handleMessage(link, time, startedAt, paused) {
     'use strict';
 
     console.log('We get: ' + link);
-    console.log(startedAt);
 
     switch (link) {
         case 'Start':
@@ -142,15 +141,13 @@ function handleMessage(link, time, startedAt) {
             resumeStream(time);
             break;
         case 'Pause':
-            pauseTime = time - startedAt;
-            console.log(pauseTime);
-            pauseStream();
+            pauseStream(time, startedAt);
             break;
         case currentAudioLink:
            restartCurrentAudio();
            break;
         default:
-            playNewAudio(link, time, startedAt);
+            playNewAudio(link, time, startedAt, paused);
             break;
     }
 }
@@ -167,8 +164,6 @@ function startStream(time, shouldReload) {
     currentAudioLink = 'audio/Waiting.mp3';
 
     saveAndPlayAudio(currentAudioLink, true, time);
-
-    isLoaded = true;
 
     preLoadAudio();
 }
@@ -202,7 +197,7 @@ function preLoadAudio() {
 
 function savePreLoadAudio(URL) {
     //'use strict';
-    //console.log("from preload");
+    console.log("from preload");
     link = 'audio/' + URL;
 
     //console.log("from savePreloadAudio"+link);
@@ -237,12 +232,15 @@ function endStream() {
 
 function resumeStream(time) {
     'use strict';
-
+    
     play(tempBuffer, false, time, time - pauseTime);
 }
 
-function pauseStream() {
+function pauseStream(time, startedAt) {
     'use strict';
+    
+    pauseTime = time - startedAt;
+    console.log(pauseTime);
 
     tempBuffer = currentSource.buffer;
     currentSource.stop();
@@ -264,23 +262,23 @@ function restartCurrentAudio(time, startedAt) {
     saveAndPlayAudio(currentAudioLink, time, startedAt);
 }
 
-function playNewAudio(link, time, startedAt) {
+function playNewAudio(link, time, startedAt, paused) {
     console.log("from playNewAudio" + link);
     link = 'audio/' + link + languageId + '.mp3';
 
     currentAudioLink = link;
-    saveAndPlayAudio(currentAudioLink, false, time, startedAt);
+    saveAndPlayAudio(currentAudioLink, false, time, startedAt, paused);
 }
 
-function saveAndPlayAudio(URL, audioLoop, time, startedAt) {
+function saveAndPlayAudio(URL, audioLoop, time, startedAt, paused) {
     'use strict';
     timeDiff = time - (new Date()).getTime();
     //console.log("URL " + URL);
     //console.log(dict);
     if (dict.some(e => e.key === URL)) {
-        //console.log("we are in");
+        console.log("we are in");
         //console.log(dict.find((e) => e.key === URL).value);
-        return play(dict.find((e) => e.key === URL).value, audioLoop, time, startedAt);
+        play(dict.find((e) => e.key === URL).value, audioLoop, time, startedAt);
     } else {
         console.log("not in");
         return fetch(URL)
@@ -288,7 +286,13 @@ function saveAndPlayAudio(URL, audioLoop, time, startedAt) {
             .then(arrayBuffer =>
                 context.decodeAudioData(
                     arrayBuffer,
-                    audioBuffer => play(audioBuffer, audioLoop, time, startedAt),
+                    audioBuffer => { 
+                        play(audioBuffer, audioLoop, time, startedAt); 
+                        if (paused === true) {
+                            isLoaded = true;
+                            pauseStream(time, startedAt);
+                        }
+                    },
                     error => console.error(error)
                 )
             )
@@ -302,8 +306,8 @@ function connectToHub() {
         .withUrl("/StreamHub")
         .build();
 
-    connection.on("ReceiveMessage", function (message, time, startedAt) {
-        handleMessage(message, time, startedAt);
+    connection.on("ReceiveMessage", function (message, time, startedAt, paused) {
+        handleMessage(message, time, startedAt, paused);
     });
 
     connection.start().catch(function (err) {
@@ -341,8 +345,17 @@ function play(currentBuffer, loopCondition, time, startedAt) {
     'use strict';
 
     startedAt = startedAt || time;
-    if (currentSource !== undefined) 
+
+    if (currentAudioLink === 'audio/Waiting.mp3')
+            isLoaded = true;
+
+    if (currentSource !== undefined) {
+        if (!isLoaded) {
+            isLoaded = true; 
+            return;
+        }
         currentSource.stop();
+    }
 
     currentSource = context.createBufferSource();
 
@@ -352,7 +365,7 @@ function play(currentBuffer, loopCondition, time, startedAt) {
 
     currentSource.loop = loopCondition;
 
-    let offset = ((new Date()).getTime() - startedAt + timeDiff) / 1000;
+    let offset = ((new Date()).getTime() - startedAt + timeDiff - 590) / 1000;
     if (offset < 0)
         offset = 0;
 
