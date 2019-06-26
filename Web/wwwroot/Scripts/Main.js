@@ -170,7 +170,7 @@ function pauseStream() {
     'use strict';
 
     tempBuffer = currentSource.buffer;
-    currentSource.stop();
+    currentSource.buffer = undefined;
 }
 
 function displayLinks() {
