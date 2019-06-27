@@ -70,7 +70,7 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.Web.ApiControllers
         public async Task<ActionResult> Update(int id, PerformanceDTO performanceDTO)
         {
             if (performanceDTO.Id != id)
-                BadRequest();
+                return BadRequest();
 
             await _administrationMicroservice.UpdatePerformanceAsync(id, performanceDTO);
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using SoftServe.ITAcademy.BackendDubbingProject.Administration.Core.Entities;
@@ -9,6 +10,8 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.Administration.Core.Interfac
     internal interface IRepository<T>
         where T : BaseEntity
     {
+        IQueryable<T> Query();
+
         Task<T> GetByIdAsync(int id);
 
         Task<T> GetByIdWithChildrenAsync(int id, string childrenName);

@@ -45,6 +45,25 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.Web.ApiControllers
             return Ok(audioDTO);
         }
 
+        /// <summary>Controller method for getting a audios by id of language and id by performance.</summary>
+        /// <param name="performanceID">Id performance of audio that need to receive.</param>
+        /// <param name="langID">Id language of audio that need to receive.</param>
+        /// <returns>List of a audios.</returns>
+        /// <response code="200">Is returned when audios does exist.</response>
+        /// <response code="400">Is returned when language with such Id doesn't exist.</response>
+        /// <response code="404">Is returned when audios doesn't exist.</response>
+        [HttpGet]
+        [Route("preload/{performanceID:int}/{langID:int}")]
+        public async Task<ActionResult<List<AudioDTO>>> GetAudiosByLanguageIdPerformanceID(int performanceID, int langID)
+        {
+            var listOfAudioDTOs = await _administrationMicroservice.GetAudiosByLanguageIDPerformanceIdAsync(langID, performanceID);
+
+            if (listOfAudioDTOs == null)
+                return BadRequest($"Language with Id: {langID} doesn't exist or Performance with Id: {performanceID} doesn`t exist!!!");
+
+            return Ok(listOfAudioDTOs);
+        }
+
         /// <summary>Controller method for creating new audio.</summary>
         /// <param name="audioDTO">Audio model which needed to create.</param>
         /// <returns>Status code and audio.</returns>
@@ -85,7 +104,7 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.Web.ApiControllers
         public async Task<ActionResult> Update(int id, AudioDTO audioDTO)
         {
             if (audioDTO.Id != id)
-                BadRequest();
+                return BadRequest();
 
             await _administrationMicroservice.UpdateAudioAsync(id, audioDTO);
 
