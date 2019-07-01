@@ -309,6 +309,8 @@ function connectToHub() {
         .withUrl("/StreamHub")
         .build();
 
+    connection.serverTimeoutInMilliseconds = 1000 * 60 * 10;
+
     connection.on("ReceiveMessage", function (message, offset, paused) {
         handleMessage(message, offset, paused);
     });
