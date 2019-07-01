@@ -233,6 +233,8 @@ function endStream() {
 function resumeStream() {
     'use strict';
     
+    timeDiff = new Date().getTime();
+
     play(tempBuffer, false, pauseTime);
 }
 
@@ -290,9 +292,9 @@ function saveAndPlayAudio(URL, audioLoop, offset, paused) {
                     audioBuffer => { 
                         play(audioBuffer, audioLoop, offset); 
                         if (paused === true) {
-                            isLoaded = true;
                             pauseStream(offset);
                         }
+                        isLoaded = true;
                     },
                     error => console.error(error)
                 )
@@ -352,10 +354,11 @@ function play(currentBuffer, loopCondition, offset=0) {
 
     if (currentSource !== undefined) {
         if (!isLoaded) {
-            isLoaded = true; 
+            isLoaded = true;
+            console.log('we are here');
             return;
         }
-        currentSource.stop();
+        currentSource.buffer = undefined;
     }
 
     currentSource = context.createBufferSource();
