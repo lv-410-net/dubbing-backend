@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1"
+    />
+    <link rel="stylesheet" href="../Styles/styles.css" type="text/css"/>
+    <link rel="stylesheet" href="../Styles/animations.css" type="text/css"/>
+    <link href="https://fonts.googleapis.com/css?family=Arsenal&subset=cyrillic" rel="stylesheet">
+    <title>Stream Page</title>
+</head>
+
+<body>
+<header>
+    <a class="header-logo" href="../index.html"><img src="../Media/theater-logo.png" alt="logo"/></a>
+</header>
+<main>
+    <div class="flex-container" id="streaming-part">
+        <button id="connecting-button">
+            Connect to stream
+        </button>
+        <div class="image-container" id="main-background"></div>
+        <div class="image-container" id="left-wave"></div>
+        <div class="image-container" id="right-wave"></div>
+        <div class="image-container" id="back-wave"></div>
+        <div class="image-container" id="woman-and-box"></div>
+        <div class="image-container" id="front-wave"></div>
+        <div class="image-container" id="item-in-box-1"></div>
+        <div class="image-container" id="item-in-box-2"></div>
+        <div id="non-animated-full-image"></div>
+    </div>
+</main>
+<script defer src="../Scripts/streaming.js"></script>
+<script defer src="../Scripts/signalr.js"></script>
+</body>
+</html>

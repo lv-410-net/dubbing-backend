@@ -1,0 +1,297 @@
+.image-container {
+    position: absolute;
+    top: 0;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+}
+
+#non-animated-full-image {
+    display: none;
+    position: absolute;
+    top: 0;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    background: url("../Media/Images/full-cover.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+
+#main-background {
+    -webkit-animation: move_front_wave 4s linear 0s infinite alternate;
+
+    z-index: -10;
+    background: url("../Media/Images/img_3.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: 50% 50%;
+    animation: move_front_wave 4s linear 0s infinite alternate;
+}
+
+#left-wave {
+    -webkit-animation: move_front_wave 4s linear 0s infinite alternate;
+
+    z-index: -9;
+    background: url("../Media/Images/img_2.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: 50% 50%;
+    animation: move_front_wave 4s linear 0s infinite alternate;
+}
+
+#right-wave {
+    -webkit-animation: move_front_wave 5s linear 0s infinite alternate;
+
+    z-index: -9;
+    background: url("../Media/Images/img_1.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: 50% 50%;
+    animation: move_front_wave 5s linear 0s infinite alternate;
+}
+
+#back-wave {
+    -webkit-animation: move_back_wave 3s linear 0s infinite alternate;
+
+    z-index: -8;
+    background: url("../Media/Images/img_0.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: 50% 50%;
+    animation: move_back_wave 3s linear 0s infinite alternate;
+}
+
+#woman-and-box {
+    -webkit-animation: move_woman 8s linear 0s infinite;
+
+    z-index: -7;
+    background: url("../Media/Images/img_37.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    animation: move_woman 8s linear 0s infinite;
+}
+
+#front-wave {
+    -webkit-animation: move_front_wave 2s linear 0s infinite alternate;
+
+    z-index: -6;
+    background: url("../Media/Images/img_4.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: 50% 50%;
+    animation: move_front_wave 2s linear 0s infinite alternate;
+}
+
+#item-in-box-1 {
+    -webkit-animation: move-item-1-in-box 8s linear 0s infinite;
+
+    z-index: -5;
+    background: url("../Media/Images/img_23.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: 50% 50%;
+    animation: move-item-1-in-box 8s linear 0s infinite;
+}
+
+#item-in-box-2 {
+    -webkit-animation: move-item-2-in-box 8s linear 0s infinite;
+
+    z-index: -5;
+    background: url("../Media/Images/img_24.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: 50% 50%;
+    animation: move-item-2-in-box 8s linear 0s infinite;
+}
+
+@-webkit-keyframes move_woman {
+    0%    { background-position: 50% 0vh; }
+    20%   { background-position: 55% 2vh; }
+    40%   { background-position: 52% 4vh; }
+    50%   { background-position: 50% 2vh; }
+    60%   { background-position: 48% 4vh; }
+    80%   { background-position: 45% 2vh; }
+    100%  { background-position: 50% 0vh; }
+}
+
+@-webkit-keyframes move_front_wave {
+    from  { background-position: 50% 50%; }
+    to    { background-position: 60% 50%; }
+}
+
+@-webkit-keyframes move_back_wave {
+    from  { background-position: 40% 50%; }
+    to    { background-position: 50% 50%; }
+}
+
+@-webkit-keyframes move-item-1-in-box {
+    0%    { background-position: 50% 0vh; }
+    25%   { background-position: 55% 2vh; }
+    50%   { background-position: 50% -2vh; }
+    75%   { background-position: 45% 2vh; }
+    100%  { background-position: 50% 0vh; }
+}
+
+@-webkit-keyframes move-item-2-in-box {
+    0%    { background-position: 50% 0vh; }
+    25%   { background-position: 55% 2vh; }
+    50%   { background-position: 50% 4vh; }
+    75%   { background-position: 45% -1vh; }
+    100%  { background-position: 50% 0vh; }
+}
+
+@keyframes move_woman {
+    0%    { background-position: 50% 0vh; }
+    20%   { background-position: 55% 2vh; }
+    40%   { background-position: 52% 4vh; }
+    50%   { background-position: 50% 2vh; }
+    60%   { background-position: 48% 4vh; }
+    80%   { background-position: 45% 2vh; }
+    100%  { background-position: 50% 0vh; }
+}
+
+@keyframes move_front_wave {
+    from  { background-position: 50% 50%; }
+    to    { background-position: 60% 50%; }
+}
+
+@keyframes move_back_wave {
+    from  { background-position: 40% 50%; }
+    to    { background-position: 50% 50%; }
+}
+
+@keyframes move-item-1-in-box {
+    0%    { background-position: 50% 0vh; }
+    25%   { background-position: 55% 2vh; }
+    50%   { background-position: 50% -2vh; }
+    75%   { background-position: 45% 2vh; }
+    100%  { background-position: 50% 0vh; }
+}
+
+@keyframes move-item-2-in-box {
+    0%    { background-position: 50% 0vh; }
+    25%   { background-position: 55% 2vh; }
+    50%   { background-position: 50% 4vh; }
+    75%   { background-position: 45% -1vh; }
+    100%  { background-position: 50% 0vh; }
+}
+
+@media screen and (orientation: landscape) {
+    @-webkit-keyframes move_woman {
+        0%    { background-position: 50% 0vh; }
+        20%   { background-position: 70% 2vh; }
+        40%   { background-position: 60% 4vh; }
+        50%   { background-position: 50% 2vh; }
+        60%   { background-position: 40% 4vh; }
+        80%   { background-position: 30% 2vh; }
+        100%  { background-position: 50% 0vh; }
+    }
+
+    @-webkit-keyframes move_front_wave {
+        from  { background-position: 50% 50%; }
+        to    { background-position: 80% 50%; }
+    }
+
+    @-webkit-keyframes move_back_wave {
+        from  { background-position: 50% 50%; }
+        to    { background-position: 20% 50%; }
+    }
+
+    @-webkit-keyframes move-item-1-in-box {
+        0%    { background-position: 50% 0vh; }
+        25%   { background-position: 70% 2vh; }
+        50%   { background-position: 50% -2vh; }
+        75%   { background-position: 30% 2vh; }
+        100%  { background-position: 50% 0vh; }
+    }
+
+    @-webkit-keyframes move-item-2-in-box {
+        0%    { background-position: 50% 0vh; }
+        25%   { background-position: 70% 2vh; }
+        50%   { background-position: 50% 4vh; }
+        75%   { background-position: 30% -1vh; }
+        100%  { background-position: 50% 0vh; }
+    }
+
+    @keyframes move_woman {
+        0%    { background-position: 50% 0vh; }
+        20%   { background-position: 70% 2vh; }
+        40%   { background-position: 60% 4vh; }
+        50%   { background-position: 50% 2vh; }
+        60%   { background-position: 40% 4vh; }
+        80%   { background-position: 30% 2vh; }
+        100%  { background-position: 50% 0vh; }
+    }
+
+    @keyframes move_front_wave {
+        from  { background-position: 50% 50%; }
+        to    { background-position: 80% 50%; }
+    }
+
+    @keyframes move_back_wave {
+        from  { background-position: 50% 50%; }
+        to    { background-position: 20% 50%; }
+    }
+
+    @keyframes move-item-1-in-box {
+        0%    { background-position: 50% 0vh; }
+        25%   { background-position: 70% 2vh; }
+        50%   { background-position: 50% -2vh; }
+        75%   { background-position: 30% 2vh; }
+        100%  { background-position: 50% 0vh; }
+    }
+
+    @keyframes move-item-2-in-box {
+        0%    { background-position: 50% 0vh; }
+        25%   { background-position: 70% 2vh; }
+        50%   { background-position: 50% 4vh; }
+        75%   { background-position: 30% -1vh; }
+        100%  { background-position: 50% 0vh; }
+    }
+}
+
+@media (min-aspect-ratio: 780/375) {
+    /* .image-container {
+        display: none;
+    }
+
+    #non-animated-full-image {
+        display: inline;
+        z-index: -1;
+    } */
+    
+    #item-in-box-1, #item-in-box-2, #woman-and-box, #main-background {
+        -webkit-animation: none;
+        animation: none;
+    }
+
+    #right-wave {
+        -webkit-animation: move_back_wave 4s linear 0s infinite alternate;
+        animation: move_back_wave 4s linear 0s infinite alternate;
+    }
+
+    @-webkit-keyframes move_front_wave {
+        from  { background-position: 50% 50%; }
+        to    { background-position: -5vw 50%; }
+    }
+
+    @-webkit-keyframes move_back_wave {
+        from  { background-position: 50% 50%; }
+        to    { background-position: 5vw 50%; }
+    }
+
+
+    @keyframes move_front_wave {
+        from  { background-position: 50% 50%; }
+        to    { background-position: -5vw 50%; }
+    }
+
+    @keyframes move_back_wave {
+        from  { background-position: 50% 50%; }
+        to    { background-position: 5vw 50%; }
+    }
+}
+
