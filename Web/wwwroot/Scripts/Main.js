@@ -246,7 +246,7 @@ function pauseStream(offset) {
     console.log(pauseTime);
 
     tempBuffer = currentSource.buffer;
-    currentSource.buffer = undefined;
+    currentSource.buffer = null;
 }
 
 function displayLinks() {
@@ -360,7 +360,7 @@ function play(currentBuffer, loopCondition, offset=0) {
             console.log('we are here');
             return;
         }
-        currentSource.buffer = undefined;
+        currentSource.buffer = null;
     }
 
     currentSource = context.createBufferSource();
