@@ -6,7 +6,7 @@ let connection;
 
 let currentAudioLink;
 
-let baseURL = sessionStorage.baseURL || window.location.href.replace(/(Pages.*$|index.html.*$)/, '');
+let baseURL = window.location.href.replace(/(Pages.*$|index.html.*$)/, '');
 
 let langID;
 
@@ -41,11 +41,13 @@ window.onload = goToStreamingPart();
 function goToStreamingPart() {
     'use strict';
     console.log(window.location.href)
+
+    if (sessionStorage.languageId === undefined || sessionStorage.performanceId === undefined)
+        window.location.href = baseURL + 'Pages/performances.html';
+
     langID = sessionStorage.languageId;
 
     languageId = '_' + langID;
-
-    streamingPart.style.display = 'flex';
 
     connectionButton.addEventListener('click', connectToStream);
 }

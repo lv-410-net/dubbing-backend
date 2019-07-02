@@ -1,3 +1,5 @@
+let baseURL = window.location.href.replace(/(Pages.*$|index.html.*$)/, '');
+
 let languagesAPI;
 
 let languagePart = document.getElementById('language-selection-part');
@@ -7,7 +9,11 @@ window.onload = goToLanguagesPart;
 function goToLanguagesPart() {
     'use strict';
     console.log(sessionStorage.performanceURL)
-    languagesAPI = sessionStorage.performanceURL + 'languages';
+
+    if (sessionStorage.performanceURL === undefined)
+        window.location.href = baseURL + 'Pages/performances.html';
+
+    languagesAPI = sessionStorage.performanceURL + '/languages';
 
     getData(languagesAPI).then(response => {
         response.forEach(language => {
@@ -16,7 +22,7 @@ function goToLanguagesPart() {
             let name = document.createTextNode(language.name);
             button.addEventListener('click', () => {
                 sessionStorage.languageId = language.id;
-                window.location.href = sessionStorage.baseURL + 'Pages/stream.html';
+                window.location.href = baseURL + 'Pages/stream.html';
             }
             );
             button.appendChild(name);

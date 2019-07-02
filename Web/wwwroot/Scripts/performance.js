@@ -1,4 +1,6 @@
-let performancesAPI = sessionStorage.baseURL + 'api/performance';
+const baseURL = window.location.href.replace(/(Pages.*$|index.html.*$)/, '');
+
+let performancesAPI = baseURL + 'api/performance/';
 
 let performancePart = document.getElementById('performance-selection-part');
 
@@ -14,8 +16,8 @@ function init() {
             let title = document.createTextNode(performance.title);
             button.addEventListener('click', () => {
                 sessionStorage.performanceId = performance.id;
-                sessionStorage.performanceURL = `${performancesAPI}/${performance.id}/`;
-                window.location.href = sessionStorage.baseURL + 'Pages/languages.html';
+                sessionStorage.performanceURL = performancesAPI + performance.id;
+                window.location.href = baseURL + 'Pages/languages.html';
             }
             );
             button.appendChild(title);
@@ -24,8 +26,6 @@ function init() {
     }).catch(error =>
         console.log(error)
     );
-
-    //performancePart.style.display = 'flex';
 }
 
 function getData(api) {
@@ -38,8 +38,4 @@ function getData(api) {
             }
             return response.json();
         });
-}
-
-function backToMain() {
-    window.location.href = sessionStorage.baseURL;
 }
