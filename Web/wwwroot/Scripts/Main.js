@@ -233,6 +233,8 @@ function endStream() {
 function resumeStream() {
     'use strict';
     
+    timeDiff = new Date().getTime();
+
     play(tempBuffer, false, pauseTime);
 }
 
@@ -244,7 +246,7 @@ function pauseStream(offset) {
     console.log(pauseTime);
 
     tempBuffer = currentSource.buffer;
-    currentSource.stop();
+    currentSource.buffer = null;
 }
 
 function displayLinks() {
@@ -290,9 +292,9 @@ function saveAndPlayAudio(URL, audioLoop, offset, paused) {
                     audioBuffer => { 
                         play(audioBuffer, audioLoop, offset); 
                         if (paused === true) {
-                            isLoaded = true;
                             pauseStream(offset);
                         }
+                        isLoaded = true;
                     },
                     error => console.error(error)
                 )
@@ -306,6 +308,8 @@ function connectToHub() {
     connection = new signalR.HubConnectionBuilder()
         .withUrl("/StreamHub")
         .build();
+
+    connection.serverTimeoutInMilliseconds = 1000 * 60 * 10;
 
     connection.on("ReceiveMessage", function (message, offset, paused) {
         handleMessage(message, offset, paused);
@@ -352,10 +356,11 @@ function play(currentBuffer, loopCondition, offset=0) {
 
     if (currentSource !== undefined) {
         if (!isLoaded) {
-            isLoaded = true; 
+            isLoaded = true;
+            console.log('we are here');
             return;
         }
-        currentSource.stop();
+        currentSource.buffer = null;
     }
 
     currentSource = context.createBufferSource();
