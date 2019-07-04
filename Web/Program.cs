@@ -19,7 +19,7 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.Web
                     services.AddTransient<IAdministrationServiceCollection, AdministrationServiceCollection>())
                 .ConfigureServices(services =>
                     services.AddTransient<IInfrastructureServiceCollection, InfrastructureServiceCollection>())
-                //.UseIISIntegration()
+                .UseIISIntegration()
                 .UseStartup<Startup>();
     }
 }

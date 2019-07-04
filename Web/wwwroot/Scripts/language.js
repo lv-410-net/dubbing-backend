@@ -8,7 +8,6 @@ window.onload = goToLanguagesPart;
 
 function goToLanguagesPart() {
     'use strict';
-    console.log(sessionStorage.performanceURL)
 
     if (sessionStorage.performanceURL === undefined)
         window.location.href = baseURL + 'Pages/performances.html';
@@ -31,8 +30,6 @@ function goToLanguagesPart() {
     }).catch(error =>
         console.log(error)
     );
-
-    languagePart.style.display = 'flex';
 }
 
 function getData(api) {
@@ -45,8 +42,4 @@ function getData(api) {
             }
             return response.json();
         });
-}
-
-function backToMain() {
-    window.location.href = sessionStorage.baseURL;
 }

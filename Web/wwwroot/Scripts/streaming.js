@@ -18,29 +18,20 @@ let pauseTime = 0;
 
 let tempBuffer;
 
-let pauseBuffer;
-
 let isLoaded;
 
 let timeDiff;
 
 let dict = [];
 
-let shouldReload = false;
-
 let userAgent = window.navigator.userAgent;
 
 const connectionButton = document.getElementById('connecting-button');
-
-const linkPart = document.getElementById('link-part');
-
-const streamingPart = document.getElementById('streaming-part');
 
 window.onload = goToStreamingPart();
 
 function goToStreamingPart() {
     'use strict';
-    console.log(window.location.href)
 
     if (sessionStorage.languageId === undefined || sessionStorage.performanceId === undefined)
         window.location.href = baseURL + 'Pages/performances.html';
@@ -50,10 +41,6 @@ function goToStreamingPart() {
     languageId = '_' + langID;
 
     connectionButton.addEventListener('click', connectToStream);
-}
-
-function backToMain() {
-    window.location.href = sessionStorage.baseURL;
 }
 
 function connectToStream() {
@@ -82,11 +69,9 @@ function changeButton() {
 function handleMessage(link, offset, paused) {
     'use strict';
 
-    console.log('We get: ' + link);
-
     switch (link) {
         case 'Start':
-            startStream(shouldReload);
+            startStream();
             break;
         case 'End':
             endStream();
@@ -106,15 +91,10 @@ function handleMessage(link, offset, paused) {
     }
 }
 
-function startStream(shouldReload) {
+function startStream() {
     'use strict';
-    if(shouldReload)
-    {
-        location.reload(true);
-    }
 
     isLoaded = false;
-    console.log(currentAudioLink);
     currentAudioLink = baseURL + 'audio/Waiting.mp3';
 
     saveAndPlayAudio(currentAudioLink, true);
@@ -124,7 +104,7 @@ function startStream(shouldReload) {
 
 function getAudios() {
     'use strict';
-    //console.log('http://192.168.0.100:5000/api/Audio/preload/' + performanceID + '/' + langID);
+    
     return fetch(baseURL + 'api/Audio/preload/' + performanceID + '/' + langID)
         .then(response => {
             if (!response.ok) {
@@ -138,32 +118,26 @@ function getAudios() {
 function preLoadAudio() {
     'use strict';
 
-    //console.log(performanceID);
-    //console.log(langID);
-    getAudios().then(response => {
-        //console.log(response.filename);
-        response.forEach(response => savePreLoadAudio(response.fileName));
-    })
+    getAudios()
+        .then(response => {
+            response.forEach(response => savePreLoadAudio(response.fileName));
+        })
         .catch(error =>
             console.log(error)
         );
 }
 
 function savePreLoadAudio(URL) {
-    //'use strict';
-    console.log("from preload");
+    'use strict';
     link = baseURL + 'audio/' + URL;
 
-    //console.log("from savePreloadAudio"+link);
     var name = link;
     return fetch(link)
         .then(response => response.arrayBuffer())
         .then(arrayBuffer => {
-            //console.log("start download");
             context.decodeAudioData(
                 arrayBuffer,
                 audioBuffer => {
-                    //console.log("start pushing");
                     dict.push({
                         key: name,
                         value: audioBuffer
@@ -180,8 +154,6 @@ function endStream() {
     currentSource.stop();
 
     window.location.href = baseURL + 'Pages/links.html';
-    shouldReload = true;
-    console.log(shouldReload);
 }
 
 function resumeStream() {
@@ -196,18 +168,9 @@ function pauseStream(offset) {
     
     pauseTime = offset;
     timeDiff = new Date().getTime();
-    console.log(pauseTime);
 
     tempBuffer = currentSource.buffer;
     stop();
-}
-
-function displayLinks() {
-    'use strict';
-
-    streamingPart.style.display = '';
-
-    linkPart.style.display = 'flex';
 }
 
 function restartCurrentAudio(offset) {
@@ -219,24 +182,20 @@ function restartCurrentAudio(offset) {
 }
 
 function playNewAudio(link, offset, paused) {
-    console.log("from playNewAudio" + link);
     link = baseURL + 'audio/' + link + languageId + '.mp3';
 
     currentAudioLink = link;
+
     saveAndPlayAudio(currentAudioLink, false, offset, paused);
 }
 
 function saveAndPlayAudio(URL, audioLoop, offset, paused) {
     'use strict';
     timeDiff = (new Date()).getTime();
-    //console.log("URL " + URL);
-    //console.log(dict);
+
     if (dict.some(e => e.key === URL)) {
-        console.log("we are in");
-        //console.log(dict.find((e) => e.key === URL).value);
         play(dict.find((e) => e.key === URL).value, audioLoop, offset);
     } else {
-        console.log("not in");
         return fetch(URL)
             .then(response => response.arrayBuffer())
             .then(arrayBuffer =>
@@ -276,14 +235,13 @@ function connectToHub() {
 function createAndPlaySilent() {
     'use strict';
 
-    pauseBuffer = context.createBuffer(2, context.sampleRate * 3, context.sampleRate);
+    const pauseBuffer = context.createBuffer(2, context.sampleRate * 3, context.sampleRate);
 
     for (let channel = 0; channel < pauseBuffer.numberOfChannels; channel++) {
 
         let nowBuffering = pauseBuffer.getChannelData(channel);
 
         for (let i = 0; i < pauseBuffer.length; i++) {
-            // nowBuffering[i] = Math.random() * 2 - 1;
             nowBuffering[i] = 0;
         }
     }
@@ -300,20 +258,10 @@ function createAndPlaySilent() {
 }
 
 function play(currentBuffer, loopCondition, offset=0) {
-    //'use strict';
-
     timeDiff = new Date().getTime() - timeDiff;
 
-    if (currentAudioLink === baseURL + 'audio/Waiting.mp3')
-            isLoaded = true;
-
-    if (currentSource !== undefined) {
-        if (!isLoaded) {
-            isLoaded = true; 
-            return;
-        }
-        stop();
-    }
+    waitingAudioLoaded();
+    isSomethingPlaying();
 
     currentSource = context.createBufferSource();
 
@@ -323,20 +271,43 @@ function play(currentBuffer, loopCondition, offset=0) {
 
     currentSource.loop = loopCondition;
 
-    let offsetFinal = timeDiff / 1000 + offset;
-    if (offsetFinal < 0)
-        offsetFinal = 0;
+    let offsetFinal = computeFinalOffset(offset);
 
     currentSource.start(0, offsetFinal);
 }
 
 function stop()
 {
-    if(/Android/.test(userAgent)) {
-        currentSource.stop();
+    if(/Mac/.test(userAgent)) {
+        currentSource.buffer = null;
     }
     else {
-        currentSource.buffer = null;
+        currentSource.stop();
+    }
+}
+
+function computeFinalOffset(offset)
+{
+    let offsetFinal = timeDiff / 1000 + offset;
+    if (offsetFinal < 0)
+        offsetFinal = 0;
+
+    return offsetFinal;
+}
+
+function waitingAudioLoaded()
+{
+    if (currentAudioLink === baseURL + 'audio/Waiting.mp3')
+            isLoaded = true;
+}
+
+function isSomethingPlaying() {
+    if (currentSource !== undefined) {
+        if (!isLoaded) {
+            isLoaded = true; 
+            return;
+        }
+        stop();
     }
 }
 

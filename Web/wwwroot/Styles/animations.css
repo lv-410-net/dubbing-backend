@@ -253,16 +253,7 @@
     }
 }
 
-@media (min-aspect-ratio: 780/375) {
-    /* .image-container {
-        display: none;
-    }
-
-    #non-animated-full-image {
-        display: inline;
-        z-index: -1;
-    } */
-    
+@media (min-aspect-ratio: 780/375) {   
     #item-in-box-1, #item-in-box-2, #woman-and-box, #main-background {
         -webkit-animation: none;
         animation: none;

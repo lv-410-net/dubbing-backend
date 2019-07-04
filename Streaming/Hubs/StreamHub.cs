@@ -1,5 +1,4 @@
 using System;
-using System.Security.Principal;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 
@@ -24,8 +23,7 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.Streaming.Core.Hubs
 
             if (_needWait)
             {
-                var time = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-                await Clients.Caller.SendAsync("ReceiveMessage", "Start", time);
+                await Clients.Caller.SendAsync("ReceiveMessage", "Start");
             }
 
             if (_started)
