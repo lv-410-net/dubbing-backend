@@ -1,0 +1,181 @@
+* {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+@font-face {
+    font-family: Arsenal;
+    src: url('./Fonts/Arsenal-Regular.ttf');
+}
+
+html,
+body {
+    height: 100%;
+    font-family: Arsenal;
+}
+
+body {
+    margin: 0;
+    background-color: #d7cbf5;
+}
+
+header {
+    display: -webkit-flex;
+    -webkit-align-items: center;
+    -webkit-justify-content: center;
+
+    z-index: 100;
+    background-color: #e0d6fb;
+    height: 10%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 10px 0 rgba(91, 59, 171, 0.4);
+}
+
+main {
+    text-align: center;
+}
+
+footer {
+    height: 10%;
+}
+
+.header-logo {
+    height: 90%;
+    width: auto;
+}
+
+.footer-pic {
+    height: 100%;
+    width: auto;
+}
+
+button {
+    -webkit-transition: 0.2s;
+    -webkit-border-radius: 40px;
+    background: -webkit-linear-gradient(149.52deg, #5B3BAB 0%, #463D8F 50%, #313F72 100%);
+    -webkit-box-shadow: 0 0 10px 2px rgba(91, 59, 171, 0.5);
+
+    text-align: center;
+    font-size: 22px;
+    font-family: inherit;
+    color: #e0d6fb;
+    padding: 0.5em 0.8em;
+    width: 65%;
+    transition: 0.2s;
+    border-radius: 40px;
+    background: linear-gradient(149.52deg, #5B3BAB 0%, #463D8F 50%, #313F72 100%);
+    border: 0;
+    margin: 2px;
+    box-shadow: 0 0 10px 2px rgba(91, 59, 171, 0.5);
+}
+
+button:first-child {
+    margin-top: 10px;
+}
+
+button:last-child {
+    margin-bottom: 10px;
+}
+
+.language-button {
+    background: -webkit-linear-gradient(149.52deg, #5B3BAB 0%, #463D8F 50%, #313F72 100%);
+    background: linear-gradient(149.52deg, #5B3BAB 0%, #463D8F 50%, #313F72 100%);
+}
+
+img {
+    width: auto;
+    height: 100%;
+}
+
+.headers {
+    color: #313f72;
+}
+
+.link-image {
+    width: 20%;
+    margin-bottom: 10px;
+}
+
+.flex-container {
+    display: -webkit-flex;
+    -webkit-flex-direction: column;
+    -webkit-align-items: center;
+    -webkit-justify-content: space-between;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+#connecting-button {
+    z-index: 100;
+    position: absolute;
+    bottom: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+}
+
+#non-animated-image {
+    z-index: -1;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("../Media/hero-tablet.jpg");
+    overflow: hidden;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+
+#to-performances-link {
+    -webkit-box-shadow: 0 0 10px 2px rgba(91, 59, 171, 0.5);
+    -webkit-border-radius: 40px;
+
+    font-size: 20px;
+    text-decoration: none;
+    box-shadow: 0 0 10px 2px rgba(91, 59, 171, 0.5);
+    border-radius: 40px;
+    width: 65%;
+    position: absolute;
+    bottom: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+}
+
+#to-performances-link:link, #to-performances-link:visited {
+    background: -webkit-linear-gradient(149.52deg, #5B3BAB 0%, #463D8F 50%, #313F72 100%);
+    background: linear-gradient(149.52deg, #5B3BAB 0%, #463D8F 50%, #313F72 100%);
+    padding: 10px 20px;
+    text-align: center;
+    color: #e0d6fb;
+}
+
+#to-performances-link:hover, #to-performances-link:active {
+    background: #e0d6fb;
+    color: #313f72;
+}
+
+@media screen and (orientation: landscape) {
+    .flex-container#link-part {
+        -webkit-flex-direction: row;
+        flex-direction: row;
+    }
+
+    .link-image {
+        width: 40%;
+    }
+
+    button, #to-performances-link {
+        width: 35%;
+    }
+}

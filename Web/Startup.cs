@@ -56,9 +56,9 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.Web
 
             AddInfrastructureServices(services);
 
-            services.AddSignalR((hubOptions) =>
+            services.AddSignalR(hubOptions =>
             {
-                hubOptions.ClientTimeoutInterval = TimeSpan.FromSeconds(300);
+                hubOptions.ClientTimeoutInterval = TimeSpan.FromSeconds(600);
                 hubOptions.KeepAliveInterval = TimeSpan.FromSeconds(10);
             });
 
