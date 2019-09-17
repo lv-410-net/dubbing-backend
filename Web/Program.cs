@@ -20,6 +20,7 @@ namespace SoftServe.ITAcademy.BackendDubbingProject.Web
                 .ConfigureServices(services =>
                     services.AddTransient<IInfrastructureServiceCollection, InfrastructureServiceCollection>())
                 .UseIISIntegration()
-                .UseStartup<Startup>();
+                .UseStartup<Startup>()
+                .UseUrls("http://0.0.0.0:5050");
     }
 }
